@@ -1,0 +1,30 @@
+###
+
+GET http://localhost:3000/user
+
+###
+
+GET http://localhost:3000/user?name=Daniel123
+
+###
+
+POST http://localhost:3000/user
+Content-Type: application/json
+
+{
+    "name": "Daniel123",
+    "email": "Danieva3@ac.sce.ac.il",
+    "password": "123456"
+}
+
+###
+
+PUT http://localhost:3000/user
+
+###
+
+DELETE http://localhost:3000/user
+
+###
+
+GET http://localhost:3000/task
