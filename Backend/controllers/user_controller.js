@@ -41,24 +41,39 @@ const postUsers = async (req, res) => {
   }
 };
   
-  const putUsers = (req, res) => {
-  };
+const putUsers = (req, res) => {
+};
   
-  const deleteUsers = async (req, res) => {
-    console.log("user delete");
-    try {
-      await User.findByIdAndDelete(req.params.id);
-      return res.status(200).send();
-    } catch (error) {
-      console.log(error);
-      res.status(400).send(error.message);
-    }  
-  };
-  
-  module.exports = { 
-    getUsers, 
-    postUsers, 
-    putUsers, 
-    deleteUsers,
-    getUserById 
-  };
+const deleteUsers = async (req, res) => {
+  console.log("user delete");
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    return res.status(200).send();
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error.message);
+  }  
+};
+
+const registerUser = async (req, res) => {
+  const { name, email, password } = req.body;
+  const emailPattern = /^[a-zA-Z0-9._-]+@ac\.sce\.ac\.il$/;
+  if (!emailPattern.test(email)) {
+    return res.status(400).json({ error: 'Invalid email format. Must be in the form _____@ac.sce.ac.il' });
+  }
+  try {
+    const user = await User.create({ name, email, password });
+    res.status(201).json({ message: 'User registered successfully', user });
+  } catch (error) {
+    res.status(500).json({ error: 'Error registering user' });
+  }
+};
+
+module.exports = { 
+  getUsers, 
+  postUsers, 
+  putUsers, 
+  deleteUsers,
+  getUserById, 
+  registerUser
+};
