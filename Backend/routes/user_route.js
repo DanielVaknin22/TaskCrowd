@@ -8,6 +8,8 @@ router.get("/:id", UserController.getUserById);
 
 router.post("/", UserController.postUsers);
 router.post('/register', UserController.registerUser);
+router.post("/login", UserController.loginUser);
+
 
 router.put("/:id", UserController.putUsers);
 

@@ -4,16 +4,19 @@ GET http://localhost:3000/user
 
 ###
 
+GET http://localhost:3000/task
+
+###
+
 GET http://localhost:3000/user?name=Daniel123
 
 ###
-POST http://localhost:3000/user/register
+POST http://localhost:3000/user/login
 Content-Type: application/json
 
 {
-    "name": "John",
-    "email": "jo111@example.com",
-    "password": "password123"
+    "email": "Danieva3@ac.sce.ac.il",
+    "password": "123456"
 }
 
 ###

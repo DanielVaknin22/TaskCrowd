@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { Title, VerticalContainer, LoginContainer,
+  InputLbl, TextInput, SubmitBtn
+} from './register.style';
 
 const RegistrationForm = () => {
   const [formData, setFormData] = useState({
@@ -27,9 +30,10 @@ const RegistrationForm = () => {
       if (!response.ok) {
         const errorData = await response.json();
         alert(errorData.error);
+        return;
       }
       const data = await response.json();
-      alert(data.message); // Display success message
+      alert(data.message);
       setFormData({ name: '', email: '', password: '' }); // Clear form inputs
     } catch (error) {
       console.error(error);
@@ -38,12 +42,12 @@ const RegistrationForm = () => {
   };
 
   return (
-    <div>
-      <h2>User Registration</h2>
-      <form onSubmit={handleSubmit}>
+    <VerticalContainer>
+      <Title>User Registration</Title>
+      <LoginContainer onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="name">Name:</label>
-          <input
+          <InputLbl htmlFor="name">Name:</InputLbl>
+          <TextInput
             type="text"
             id="name"
             name="name"
@@ -53,8 +57,8 @@ const RegistrationForm = () => {
           />
         </div>
         <div>
-          <label htmlFor="email">Email:</label>
-          <input
+          <InputLbl htmlFor="email">Email:</InputLbl>
+          <TextInput
             type="email"
             id="email"
             name="email"
@@ -64,8 +68,8 @@ const RegistrationForm = () => {
           />
         </div>
         <div>
-          <label htmlFor="password">Password:</label>
-          <input
+          <InputLbl htmlFor="password">Password:</InputLbl>
+          <TextInput
             type="password"
             id="password"
             name="password"
@@ -74,9 +78,9 @@ const RegistrationForm = () => {
             required
           />
         </div>
-        <button type="submit">Sign up</button>
-      </form>
-    </div>
+        <SubmitBtn type="submit">Sign up</SubmitBtn>
+      </LoginContainer>
+    </VerticalContainer>
   );
 };
 
