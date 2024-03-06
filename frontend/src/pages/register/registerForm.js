@@ -78,7 +78,8 @@ const RegistrationForm = () => {
             required
           />
         </div>
-        <SubmitBtn type="submit">Sign up</SubmitBtn>
+        <SubmitBtn onClick={handleSubmit}>Sign up</SubmitBtn>
+
       </LoginContainer>
     </VerticalContainer>
   );

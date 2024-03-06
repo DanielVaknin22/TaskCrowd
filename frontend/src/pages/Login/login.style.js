@@ -5,7 +5,6 @@ export const InputLbl = styled.label`
   font-size: 16px;
   color:black;
   display: block;
-
 `;
 
 export const LoginContainer = styled.div`
@@ -59,12 +58,12 @@ export const SubmitBtn = styled.button`
 export const TextInput = styled.input`
   border: 1px solid black;
   width: 90%;
+  height: 15px;
   border-radius: 5px;
   margin-bottom: 5px;
   color: black;
-  padding: 5px 15px;
+  padding: 5px 5px;
   font-size: 14px;
-  margin-right: 200px;
   ::placeholder {
     color: white;
   }
@@ -73,6 +72,21 @@ export const TextInput = styled.input`
   }
 
 `;
+
+// export const EyeLab = styled.span`
+//   position: absolute;
+//   top: 50%;
+//   right: 20px;
+//   transform: translateY(-50%);
+//   cursor: pointer;
+// `;
+
+// export const EyeLab1 = styled.span`
+//   margin-left: 85%;
+//   display: block;
+//   cursor: pointer;
+//   margin-top: -45px ;
+// `;
 
 export const NavLink = styled(Link)`
     color: gray;

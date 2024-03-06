@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { VerticalContainer, Title, InputLbl, LoginContainer, 
+  SubmitBtn, TextInput, NavLink } from './login.style'
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
@@ -7,7 +9,14 @@ const LoginForm = () => {
     password: ''
   });
 
-  const history = useNavigate();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const auth = localStorage.getItem('user');
+    if(auth){
+      navigate('/home');
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -26,20 +35,24 @@ const LoginForm = () => {
         },
         body: JSON.stringify(formData)
       });
-      const responseData = await response.json();
-
       if (!response.ok) {
+        const responseData = await response.json();
         if (response.status === 401) {
-          // Unauthorized error
           alert(responseData.message);
         } else {
-          // Other errors
           alert('Failed to login');
         }
       }  else {
-        // Successful login
+        const responseData = await response.json();
         alert(responseData.message);
-        history('/home');
+        const userID = responseData.userID;
+        if (userID !== undefined) {
+          localStorage.setItem('userID', userID);
+        }
+        console.log('user:', userID);
+        localStorage.setItem('user', JSON.stringify(responseData));
+        console.log('Login successful');
+        navigate('/home');
       }
     } catch (error) {
       console.error(error);
@@ -48,12 +61,12 @@ const LoginForm = () => {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+    <VerticalContainer>
+      <Title>Login </Title>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
+        <LoginContainer>
+          <InputLbl htmlFor="email">Email:</InputLbl>
+          <TextInput
             type="email"
             id="email"
             name="email"
@@ -61,10 +74,8 @@ const LoginForm = () => {
             onChange={handleChange}
             required
           />
-        </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
+          <InputLbl htmlFor="password">Password:</InputLbl>
+          <TextInput
             type="password"
             id="password"
             name="password"
@@ -72,10 +83,12 @@ const LoginForm = () => {
             onChange={handleChange}
             required
           />
-        </div>
-        <button type="submit">Login</button>
+        <SubmitBtn type="submit">Login</SubmitBtn>
+        </LoginContainer>
+
+        <InputLbl>&emsp;&emsp;Don't have an account?&nbsp;&nbsp;<NavLink to="/user/register">Sign up</NavLink> </InputLbl>
       </form>
-    </div>
+    </VerticalContainer>
   );
 };
 

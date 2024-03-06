@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ImageClassificationForm from './imageClassification';
+
 
 const CreateTaskPage = () => {
   const [formData, setFormData] = useState({
     subject: '',
     taskType: '',
+    numsolution: '',
   });
+
+  const history = useNavigate();
+
+  const getUserID = () => {
+    // Logic to retrieve userID (e.g., from localStorage or application state)
+    return localStorage.getItem('userID'); // Example of retrieving from localStorage
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -15,11 +26,26 @@ const CreateTaskPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const userID = getUserID();
     try {
-      const response = await fetch('http://localhost:3000/user/create-tasks', formData);
-      console.log(response.data); // Assuming the server responds with the created task data
-      alert('Task created successfully');
-      // Optionally, you can redirect the user to another page after successful task creation
+      const response = await fetch('http://localhost:3000/task/create-tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...formData,
+          userID: userID
+        })
+      });
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log(responseData);
+        alert('Task created successfully');
+      } else {
+        console.error('Failed to create task:', response.statusText);
+        alert('Failed to create task');
+      }
     } catch (error) {
       console.error('Failed to create task:', error);
       alert('Failed to create task');
@@ -45,14 +71,14 @@ const CreateTaskPage = () => {
           <label htmlFor="taskType">Task Type: </label>
           <select
             id="taskType"
-            name="taskType"
-            value={formData.taskType}
+            name="type"
+            value={formData.type}
             onChange={handleChange}
             required
           >
             <option value="">Select Task Type</option>
-            <option value="type1">Image classification</option>
-            <option value="type2">Text cataloging</option>
+            <option value="Image classification">Image classification</option>
+            <option value="Text cataloging">Text cataloging</option>
           </select>
         </div>
         <div>

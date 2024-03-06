@@ -14,7 +14,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         index: { unique: false, dropDups: true },
         required: true,
-    }
+    },
+    tasks: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Task',
+    }]
 });
 
 module.exports = mongoose.model("User", userSchema);

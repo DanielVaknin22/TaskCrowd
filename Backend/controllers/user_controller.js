@@ -79,7 +79,8 @@ const loginUser = async (req, res) => {
       if (password !== user.password) {
           return res.status(401).json({ message: "Invalid password" });
       }
-      res.status(200).json({ message: "Login successful", user });
+      await user.save();
+      res.status(200).json({ message: "Login successful", userID: user._id, email: user.email });
   } catch (error) {
       res.status(500).json({ error: error.message });
   }
