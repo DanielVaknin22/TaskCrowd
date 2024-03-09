@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ImageClassificationForm from './imageClassification';
 
 
 const CreateTaskPage = () => {
   const [formData, setFormData] = useState({
     subject: '',
-    taskType: '',
+    type: '',
     numsolution: '',
   });
 
   const history = useNavigate();
 
   const getUserID = () => {
-    // Logic to retrieve userID (e.g., from localStorage or application state)
-    return localStorage.getItem('userID'); // Example of retrieving from localStorage
+    return localStorage.getItem('userID');
   };
 
   const handleChange = (e) => {
@@ -42,6 +40,14 @@ const CreateTaskPage = () => {
         const responseData = await response.json();
         console.log(responseData);
         alert('Task created successfully');
+
+        if (formData.type === 'Image classification') {
+          history('/give-tasks/image-classification');
+        } else if (formData.type === 'Text cataloging') {
+          history('/text-cataloging');
+        } else {
+          alert('Unknown task type');
+        }
       } else {
         console.error('Failed to create task:', response.statusText);
         alert('Failed to create task');
