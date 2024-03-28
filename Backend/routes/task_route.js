@@ -3,8 +3,9 @@ const router = express.Router();
 const TaskController = require("../controllers/task_controller");
 
 router.post('/create-tasks', TaskController.createTask);
-router.get("/", TaskController.getTasks);
+router.get("/solve-tasks", TaskController.getTasks);
 router.post('/create-image-classification-task', TaskController.imageClassification);
+// router.get('/solve-task', TaskController.solvingTask);
 
 
 // router.get("/", (req, res) => {

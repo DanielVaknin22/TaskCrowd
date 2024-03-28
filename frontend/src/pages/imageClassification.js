@@ -1,21 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-const ImageClassificationForm = ({ onSubmit }) => {
-  const [userID, setUserID] = useState('');
+const ImageClassificationForm = ({ userID, subject, numsolution }) => {
   const [images, setImages] = useState([]);
-  const [labels, setLabels] = useState([]);
+  // const [labels, setLabels] = useState([]);
 
-  useEffect(() => {
-    const storedUserID = localStorage.getItem('userID');
-    if (storedUserID) {
-      setUserID(storedUserID);
-    }
-  }, []);
-
-  const handleImageChange = (e, index) => {
+  const handleImageChange = async (e) => {
     const files = e.target.files;
-    const newImages = Array.from(files);
-    setImages([...images, ...newImages]);
+    const imagePromises = [];
+  
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const promise = readImage(file);
+      imagePromises.push(promise);
+    }
+  
+    const imageDataArray = await Promise.all(imagePromises);
+    const newImages = imageDataArray.map(data => data.dataURL);
+    setImages(newImages);
+  };
+
+  const readImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        resolve({
+          file: file,
+          dataURL: e.target.result
+        });
+      };
+      reader.onerror = (error) => {
+        reject(error);
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleRemoveImage = (index) => {
@@ -23,42 +40,71 @@ const ImageClassificationForm = ({ onSubmit }) => {
     setImages(filteredImages);
   };
 
-  const handleLabelChange = (index, value) => {
-    const newLabels = [...labels];
-    newLabels[index] = value;
-    setLabels(newLabels);
-  };
+  // const getUserID = () => {
+  //   return localStorage.getItem('userID');
+  // };
 
-  const handleAddLabel = () => {
-    setLabels([...labels, '']);
-  };
+  // const getSubject = () => {
+  //   return localStorage.getItem('subject');
+  // };
+
+  // const getNumsolution = () => {
+  //   return localStorage.getItem('numsolution');
+  // };
+
+  // const handleLabelChange = (index, value) => {
+  //   const newLabels = [...labels];
+  //   newLabels[index] = value;
+  //   setLabels(newLabels);
+  // };
+
+  // const handleAddLabel = () => {
+  //   setLabels([...labels, '']);
+  // };
 
   // const handleAddImage = () => {
   //   setImages([...images, null]);
   //   setLabels([...labels, '']);
   // };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    images.forEach((image, index) => {
-      formData.append(`image${index}`, image);
+    const userID = localStorage.getItem('userID');
+    const numsolution = localStorage.getItem('numsolution');
+    const subject = localStorage.getItem('subject');
+    const type = 'Image classification';
+    const formDataWithDetails = {
+      ...formData,
+      userID: userID,
+      numsolution: numsolution,
+      subject: subject,
+      type: type
+    };
+    images.forEach((image) => {
+      formData.append(`images[]`, image.file);
     });
-    labels.forEach((label, index) => {
-      formData.append(`label${index}`, label);
-    });
-    formData.append('userID', userID);
-    onSubmit(formData);
+    try {
+      const response = await fetch('http://localhost:3000/task/create-image-classification-task', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formDataWithDetails)
+      });
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log(responseData);
+        alert('Image classification task created successfully');
+      } else {
+        console.error('Failed to create image classification task:', response.statusText);
+        alert('Failed to create image classification task');
+      }
+    } catch (error) {
+      console.error('Error creating image classification task:', error);
+      alert('Failed to create image classification task');
+    }
   };
-
-  // const handleAddImage = () => {
-  //   const newImagePaths = [...imagePaths];
-  //   const newLabels = [...labels];
-  //   newImagePaths.push('');
-  //   newLabels.push('');
-  //   setImagePaths(newImagePaths);
-  //   setLabels(newLabels);
-  // };
 
   // const handleChange = (index, type, value) => {
   //   if (type === 'image') {
@@ -87,7 +133,7 @@ const ImageClassificationForm = ({ onSubmit }) => {
         />
         {images.map((image, index) => (
           <div key={index}>
-            <img src={URL.createObjectURL(image)} alt={`Image ${index}`} />
+            <img width={100} height={100} src={image.dataURL} alt={`Image ${index}`} />
             <button type="button" onClick={() => handleRemoveImage(index)}>Remove</button>
             {/* <label htmlFor={`image-${index}`}>Image {index + 1}:</label>
             <input
@@ -96,18 +142,18 @@ const ImageClassificationForm = ({ onSubmit }) => {
               onChange={(e) => handleImageChange(e, index)}
               required
             /> */}
-            <label htmlFor={`label-${index}`}>Label:</label>
+            {/*<label htmlFor={`label-${index}`}>Label:</label>
             <input
               type="text"
               id={`label-${index}`}
               value={labels[index]}
               onChange={(e) => handleLabelChange(index, e.target.value)}
               required
-            />
+          />*/}
           </div>
         ))}
         {/* <button type="button" onClick={handleAddImage}>Add Image</button> */}
-        <button type="button" onClick={handleAddLabel}>Add Label</button>
+        {/* <button type="button" onClick={handleAddLabel}>Add Label</button> */}
         <button type="submit">Create Task</button>
       </form>
     </div>

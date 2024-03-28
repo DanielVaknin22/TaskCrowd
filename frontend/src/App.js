@@ -6,6 +6,8 @@ import LoginForm from './pages/Login/login';
 import Home from './pages/home/home';
 import CreateTaskPage from './pages/createTask';
 import ImageClassificationForm from './pages/imageClassification';
+import SolveTasksPage from './pages/solveTask/solveTasks';
+import Profile from './pages/profile';
 
 const App = () => {
   const [isAuth, setIsAuth] = useState(false);
@@ -38,6 +40,8 @@ const App = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/give-tasks" element={ <CreateTaskPage /> } />
           <Route path="/give-tasks/image-classification" element={ <ImageClassificationForm/> } />
+          <Route path="/solve-tasks" element={<SolveTasksPage />} />
+          <Route path="/user/profile" element={<Profile />} />
 
         </Routes>
       </div>

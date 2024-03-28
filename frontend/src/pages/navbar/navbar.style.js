@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom';
 export const NavbarContainer = styled.nav`
   width: 100%;
   height: 50px;
-  background-color: rgba(0, 0, 0 , .8);
+  background-color: rgba(0, 0, 0 , .85);
   flex-wrap: wrap;
   display: flex;
+  border: 1.2px solid rgba(255, 255, 255, 0.1);
   /* flex-direction: column; */
   /* position: fixed; */
   /* top: 0; */

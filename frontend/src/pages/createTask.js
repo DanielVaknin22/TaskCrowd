@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
 const CreateTaskPage = () => {
   const [formData, setFormData] = useState({
     subject: '',
     type: '',
     numsolution: '',
+    images: [],
   });
 
   const history = useNavigate();
@@ -22,27 +22,37 @@ const CreateTaskPage = () => {
     });
   };
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     const userID = getUserID();
+    console.log('userID:', userID);
+    const formDataWithUserID = {
+      ...formData,
+      userID: userID
+    };
+
     try {
       const response = await fetch('http://localhost:3000/task/create-tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          ...formData,
-          userID: userID
-        })
+        body: JSON.stringify(formDataWithUserID),
       });
       if (response.ok) {
         const responseData = await response.json();
         console.log(responseData);
         alert('Task created successfully');
-
+        const { numsolution, subject } = responseData;
+        if (numsolution !== undefined) {
+          localStorage.setItem('numsolution', numsolution);
+        }
+        if (subject !== undefined) {
+          localStorage.setItem('subject', subject);
+        }
         if (formData.type === 'Image classification') {
-          history('/give-tasks/image-classification');
+          history(`/give-tasks/image-classification?userID=${userID}&subject=${subject}&numsolution=${numsolution}&type=${formData.type}`);
         } else if (formData.type === 'Text cataloging') {
           history('/text-cataloging');
         } else {
@@ -98,6 +108,19 @@ const CreateTaskPage = () => {
             required
           />
         </div>
+        {/* {formData.type === 'Image classification' && (
+          <div>
+            <label htmlFor="images">Upload Images: </label>
+            <input
+              type="file"
+              id="images"
+              name="images"
+              accept="image/*"
+              onChange={handleFileChange}
+              required
+            />
+          </div>
+        )} */}
         <button type="submit">Continue</button>
       </form>
     </div>

@@ -22,6 +22,18 @@ const taskSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    labels: {
+        type: String,
+    },
+    images: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Image',
+            required: true,
+        }
+    ],
+
+
 });
 
 module.exports = mongoose.model("Task", taskSchema);

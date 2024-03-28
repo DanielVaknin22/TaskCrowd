@@ -29,6 +29,7 @@ const Navbar = () => {
         {isAuth ? (
           <>
         <li><NavbarLink to="/home">Home</NavbarLink></li>
+        <li><NavbarLink to="/user/profile">Profile</NavbarLink></li>
         <li><SubmitBtn onClick={handleLogout}>Logout</SubmitBtn></li>
         </>
         ) : (
