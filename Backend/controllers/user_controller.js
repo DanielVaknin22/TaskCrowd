@@ -80,11 +80,17 @@ const loginUser = async (req, res) => {
           return res.status(401).json({ message: "Invalid password" });
       }
       await user.save();
-      res.status(200).json({ message: "Login successful", userID: user._id, email: user.email });
+      res.status(200).json({ 
+          message: "Login successful", 
+          userID: user._id, 
+          name: user.name, 
+          email: user.email 
+      });
   } catch (error) {
       res.status(500).json({ error: error.message });
   }
 };
+
 
 module.exports = { 
   getUsers, 

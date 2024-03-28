@@ -1,17 +1,23 @@
 import styled from 'styled-components';
 
+export const UserProfile = styled.div`
+text-align: left;
+
+`;
+
 export const HomeWrapper = styled.div`
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
-    text-align: center;
+    // text-align: center;
     background-color: rgba(0, 0, 0 , .9);
-    min-height: 120vh;
+    // min-height: 120vh;
     flex-direction: column;
     justify-content: center;
     margin-top: -20px;
     font-family: Verdana, Helvetica, sans-serif;
     color: white;
+    width: 100%;
 `;
 
 export const TaskContainer = styled.div`
@@ -28,8 +34,7 @@ export const UserDetails = styled.div`
     display: flex;
     align-items: center;
     font-weight: bold;
-    font-size: 16px
-
+    font-size: 16px;
 `;
 
 export const DateContainer = styled.div`

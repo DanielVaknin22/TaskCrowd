@@ -8,42 +8,14 @@ export const NavbarContainer = styled.nav`
   flex-wrap: wrap;
   display: flex;
   border: 1.2px solid rgba(255, 255, 255, 0.1);
-  /* flex-direction: column; */
-  /* position: fixed; */
-  /* top: 0; */
-  /* z-index: 999; */
+  // /* flex-direction: column; */
+  // position: fixed;
+  // /* top: 0; */
+  // /* z-index: 999; */
   @media (min-width: 850px) {
     height: 50px;
   }
 `;
-
-// export const BottonContainer = styled.nav`
-//     width: 100%;
-//     height: 80px;
-//     background-color: blue;
-//     display: flex;
-//     flex-direction: column;    
-// `;
-
-// export const LeftContainer = styled.div`
-//   flex: 70%;
-//   display: flex;
-//   align-items: center;
-//   padding-left: 5%;
-// `;
-
-// export const RightContainer = styled.div`
-//   flex: 30%;
-//   display: flex;
-//   justify-content: flex-end;
-//   padding-right: 5px;
-// `;
-
-// export const NavbarInnerContainer = styled.div`
-//   width: 100%;
-//   height: 80px;
-//   display: flex;
-// `;
 
 export const NavbarLinkContainer = styled.div`
   display: flex;

@@ -42,14 +42,13 @@ const LoginForm = () => {
         } else {
           alert('Failed to login');
         }
-      }  else {
+      } else {
         const responseData = await response.json();
         alert(responseData.message);
-        const userID = responseData.userID;
+        const { userID } = responseData; // Assuming the name is provided in the response
         if (userID !== undefined) {
           localStorage.setItem('userID', userID);
         }
-        console.log('user:', userID);
         localStorage.setItem('user', JSON.stringify(responseData));
         console.log('Login successful');
         navigate('/home');
@@ -59,6 +58,7 @@ const LoginForm = () => {
       alert('Failed to login');
     }
   };
+  
 
   return (
     <VerticalContainer>

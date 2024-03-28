@@ -3,20 +3,29 @@ const Task = require('../models/task_model');
 const User = mongoose.model('User');
 const Image = require('../models/image_model');
 
+getTasksSolved = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const tasks = await Task.find({ solvedBy: userId });
+    res.json(tasks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 const getTasks = async (req, res) => {
   try {
     let tasks;
     if (req.query.name) {
-      tasks = await Task.find({ name: req.query.name });
+      tasks = await Task.find({ userID: req.query.userID });
     } else {
       tasks = await Task.find();
     }
 
-    // Fetch user details for each task
     const tasksWithUserNames = await Promise.all(tasks.map(async (task) => {
-      const user = await User.findById(task.userID); // Assuming your user model is named User
-      const userName = user ? user.name : 'Unknown'; // If user is not found, set name as 'Unknown'
+      const user = await User.findById(task.userID); 
+      const userName = user ? user.name : 'Unknown'; 
       return {
         ...task.toObject(),
         userName
@@ -116,4 +125,5 @@ const uploadImages = async (req, res) => {
   
 // }
 
-module.exports = { createTask, getTasks, imageClassification, uploadImages };
+module.exports = { createTask, getTasks, imageClassification, uploadImages,
+  getTasksSolved };
