@@ -5,6 +5,10 @@ const imageSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  filePath: {
+    type: String,
+    required: true,
+  },
   userID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

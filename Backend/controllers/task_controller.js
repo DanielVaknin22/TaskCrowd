@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const Task = require('../models/task_model');
 const User = mongoose.model('User');
 const Image = require('../models/image_model');
+const multer = require('multer');
+// const upload = multer({ dest: 'uploads/' });
 
 getTasksSolved = async (req, res) => {
   try {
@@ -42,25 +44,52 @@ const getTasks = async (req, res) => {
 const createTask = async (req, res) => {
   try {
     console.log("create task");
-    const { userID ,subject, type, numsolution } = req.body;
-    console.log('Received data:', { userID ,subject, type, numsolution });
-    const newTask = new Task({ userID, subject, type, numsolution });
+    const { userID, subject, type, numsolution, labels, images } = req.body;
+    console.log('Received data:', { userID, subject, type, numsolution });
+    let newTask;
+
+    if (type === 'Image classification') {
+      newTask = new Task({
+        userID,
+        subject,
+        type,
+        numsolution,
+        labels,
+      });
+
+      const savedTask = await newTask.save();
+
+      const savedImages = await Promise.all(images.map(async base64Image => {
+        const { filename } = base64Image;
+        const newImage = new Image({
+          taskID: savedTask._id,
+          userID,
+          filename: filename || 'Untitled',
+          filePath: `../uploads/${filename}`,
+        });
+        return await newImage.save();
+      }));
+      console.log('Received data:', { userID, subject, type, numsolution, labels });
+      newTask.images = savedImages.map(image => image._id);
+
+    } else {
+      newTask = new Task({ userID, subject, type, numsolution });
+    }
+
     const savedTask = await newTask.save();
     const tasks = await Task.find();
     const user = await User.findById(userID);
     console.log('User:', user);
+
     if (!user.tasks.includes(savedTask._id)) {
       user.tasks.push(savedTask._id);
       await user.save();
     }
-    res.status(201).json({ 
-     message: 'Task created successfully',
-     task: newTask,
-     numsolution: savedTask.numsolution,
-     subject: savedTask.subject,
-     userID: savedTask.userID,
-     type: savedTask.type
-     });
+
+    res.status(201).json({
+      message: 'Task created successfully',
+      task: savedTask
+    });
     return { user, tasks };
   } catch (error) {
     console.error('Failed to create task:', error);
@@ -68,45 +97,14 @@ const createTask = async (req, res) => {
   }
 };
 
-const imageClassification = async (req, res) => {
-  try {
-    const { userID, images, labels, numsolution, type, subject } = req.body;
-    const newTask = new Task({
-      userID,
-      taskType: 'image classification',
-      images,
-      labels,
-      numsolution,
-      type,
-      subject,
-    });
-    const savedTask = await newTask.save();
-    req.files = images;
-
-    const uploadReq = {
-      body: {
-        userID,
-        taskID: savedTask._id,
-        files: images
-      }
-    };
-    await uploadImages(uploadReq, res);
-
-    // res.status(201).json({ message: 'Image classification task created successfully', task: savedTask });
-  } catch (error) {
-    console.error('Failed to create image classification task:', error);
-    res.status(500).json({ error: 'Failed to create image classification task' });
-  }
-};
-
 const uploadImages = async (req, res) => {
   try {
     const { userID, taskID } = req.body; 
-    const images = req.files ? req.files.map(file => ({
+    const images = req.files && Array.isArray(req.files) ? req.files.map(file => ({
       filename: file.filename,
       userID: userID,
       taskID: taskID,
-    })) : [];
+      filePath: `../uploads/${file.filename}`,    })) : [];
     if (images.length === 0) {
       throw new Error('No files found in the request');
     }
@@ -125,5 +123,5 @@ const uploadImages = async (req, res) => {
   
 // }
 
-module.exports = { createTask, getTasks, imageClassification, uploadImages,
+module.exports = { createTask, getTasks, uploadImages,
   getTasksSolved };

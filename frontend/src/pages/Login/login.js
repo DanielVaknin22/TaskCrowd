@@ -45,7 +45,7 @@ const LoginForm = () => {
       } else {
         const responseData = await response.json();
         alert(responseData.message);
-        const { userID } = responseData; // Assuming the name is provided in the response
+        const { userID } = responseData;
         if (userID !== undefined) {
           localStorage.setItem('userID', userID);
         }

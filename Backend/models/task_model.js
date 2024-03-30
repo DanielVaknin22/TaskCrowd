@@ -22,9 +22,10 @@ const taskSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    labels: {
+    labels: [{
         type: String,
-    },
+        required: true
+    }],
     images: [
         {
             type: mongoose.Schema.Types.ObjectId,

@@ -34,7 +34,7 @@ const RegistrationForm = () => {
       }
       const data = await response.json();
       alert(data.message);
-      setFormData({ name: '', email: '', password: '' }); // Clear form inputs
+      setFormData({ name: '', email: '', password: '' });
     } catch (error) {
       console.error(error);
       alert('Failed to register user');
