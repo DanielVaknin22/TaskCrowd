@@ -8,6 +8,8 @@ router.get("/solve-tasks", TaskController.getTasks);
 router.get('/get-tasks', TaskController.getTasks);
 router.get('/get-solved-tasks', TaskController.getTasksSolved);
 router.post('/upload-image', TaskController.uploadImages);
+router.get('/get-images/:taskId', TaskController.getTaskImages);
+
 
 // router.get("/", (req, res) => {
 //   res.send("task get");

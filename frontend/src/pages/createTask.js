@@ -10,7 +10,6 @@ const CreateTaskPage = () => {
     images: [],
     labels: [],
   });
-  const [images, setImages] = useState();
   const upload = () => {
     const formDataUpload = new FormData();
     formData.images.forEach((image, index) => {
@@ -88,7 +87,7 @@ const CreateTaskPage = () => {
       userID: userID,
       images: base64Images
     };
-    // console.log(formDataWithUserID);
+    console.log(formDataWithUserID);
     try {
       const response = await fetch('http://localhost:3000/task/create-tasks', {
         method: 'POST',

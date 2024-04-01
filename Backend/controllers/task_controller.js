@@ -2,8 +2,24 @@ const mongoose = require('mongoose');
 const Task = require('../models/task_model');
 const User = mongoose.model('User');
 const Image = require('../models/image_model');
-const multer = require('multer');
-// const upload = multer({ dest: 'uploads/' });
+// const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+const { log } = require('console');
+
+const getTaskImages = async (req, res) => {
+  try {
+    const taskId = req.params.taskId;
+    // Retrieve images associated with the specified taskId
+    const images = await Image.find({ taskID: taskId });
+    // Extract file paths from images and return as response
+    const filepaths = images.map(image => image.filePath);
+    res.json({ filepaths });
+  } catch (error) {
+    console.error('Error fetching task images:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 getTasksSolved = async (req, res) => {
   try {
@@ -59,13 +75,22 @@ const createTask = async (req, res) => {
 
       const savedTask = await newTask.save();
 
-      const savedImages = await Promise.all(images.map(async base64Image => {
-        const { filename } = base64Image;
+      const savedImages = await Promise.all(images.map(async (base64ImageData) => {
+        const base64Image = base64ImageData.split(';base64,').pop();
+        const filename = `image_${Date.now()}.jpg`; 
+        const directoryPath = path.join(__dirname, '..', 'uploads');
+        const filePath = path.join('uploads', filename);
+        if (!fs.existsSync(directoryPath)) {
+          fs.mkdirSync(directoryPath, { recursive: true });
+        }
+
+        await fs.promises.writeFile(filePath, base64Image, { encoding: 'base64' });
+        
         const newImage = new Image({
           taskID: savedTask._id,
           userID,
-          filename: filename || 'Untitled',
-          filePath: `../uploads/${filename}`,
+          filename,
+          filePath,
         });
         return await newImage.save();
       }));
@@ -104,7 +129,8 @@ const uploadImages = async (req, res) => {
       filename: file.filename,
       userID: userID,
       taskID: taskID,
-      filePath: `../uploads/${file.filename}`,    })) : [];
+      filePath: `../uploads/${file.filename}`,
+    })) : [];
     if (images.length === 0) {
       throw new Error('No files found in the request');
     }
@@ -124,4 +150,4 @@ const uploadImages = async (req, res) => {
 // }
 
 module.exports = { createTask, getTasks, uploadImages,
-  getTasksSolved };
+  getTaskImages, getTasksSolved };

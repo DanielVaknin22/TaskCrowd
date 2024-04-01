@@ -31,11 +31,11 @@ const initApp = () => {
       }
     });
 
-    const upload = multer({ storage: storage });
+    const upload = multer({ storage: storage,  limits: { fileSize: 10 * 1024 * 1024 } });
 
     app.post("/upload-image", upload.array('images'), (req, res) => {
       console.log(req.body);
-      console.log(req.file);
+      console.log(req.files);
       res.status(200).json({ message: 'Images uploaded successfully' });
     });
     

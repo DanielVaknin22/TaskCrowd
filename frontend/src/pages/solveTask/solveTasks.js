@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { HomeWrapper, TaskContainer, UserDetails, DateContainer, Task } from './solveTask.style';
+import { HomeWrapper, TaskContainer, UserDetails, DateContainer, Task, Img, Popup, PopupContant, SolveButton } from './solveTask.style';
 
 const SolveTasksPage = () => {
     const [tasks, setTasks] = useState([]);
     const [auth, setAuth] = useState(null);
     const [selectedTask, setSelectedTask] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
+    const [imageUrls, setImageUrls] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const authData = localStorage.getItem('user');
@@ -16,16 +18,18 @@ const SolveTasksPage = () => {
     }, []);
 
     const fetchTasksForSolving = async () => {
+        setLoading(true);
         try {
             const response = await fetch('http://localhost:3000/task/solve-tasks');
-            if (response.ok) {
-                const data = await response.json();
-                setTasks(data);
-            } else {
-                console.error('Failed to fetch tasks:', response.statusText);
+            if (!response.ok) {
+                throw new Error('Failed to fetch tasks');
             }
+            const data = await response.json();
+            setTasks(data);
         } catch (error) {
             console.error('Error fetching tasks:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -40,7 +44,6 @@ const SolveTasksPage = () => {
             });
             if (response.ok) {
                 console.log('Task solved successfully');
-                // You can update the UI to reflect that the task has been solved
             } else {
                 console.error('Failed to solve task:', response.statusText);
             }
@@ -54,65 +57,131 @@ const SolveTasksPage = () => {
         const day = date.getDate();
         const year = date.getFullYear();
         const monthNames = [
-          "January", "February", "March", "April", "May", "June", "July",
-          "August", "September", "October", "November", "December"
+            "January", "February", "March", "April", "May", "June", "July",
+            "August", "September", "October", "November", "December"
         ];
         const monthIndex = date.getMonth();
         const month = monthNames[monthIndex];
-      
+
         return `${day} ${month} ${year}`;
     };
 
+    // const fetchImageFilename = async (imageId) => {
+    //     try {
+    //         const response = await fetch(`http://localhost:3000/api/images/${imageId}`); // Endpoint to fetch filename
+    //         if (!response.ok) {
+    //             throw new Error('Failed to fetch filename');
+    //         }
+    //         const data = await response.json();
+    //         return data.filename; // Assuming the response contains the filename
+    //     } catch (error) {
+    //         console.error('Error fetching filename:', error);
+    //         return null;
+    //     }
+    // };
+
+    const fetchTaskImages = async (taskId) => {
+        try {
+          const response = await fetch(`http://localhost:3000/task/get-images/${taskId}`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch task images');
+          }
+          const data = await response.json();
+          const filepaths = data.filepaths.map(filepath => `http://localhost:3000/${filepath}`);
+          console.log(filepaths);
+          return filepaths;
+        } catch (error) {
+          console.error('Error fetching task images:', error);
+          return [];
+        }
+    };
+    
+      
+      useEffect(() => {
+        if (selectedTask) {
+          fetchTaskImages(selectedTask._id)
+            .then(filepaths => setImageUrls(filepaths))
+            .catch(error => console.error('Error fetching task images:', error));
+        }
+      }, [selectedTask]);
+
     return (
         <HomeWrapper>
-             {auth ? (
+            {auth ? (
                 <>
-            <h2>Hello!&#128075;<br />
-            Choose task to solve</h2>
-            {tasks && tasks.map(task => (
-                <TaskContainer>
-                    <Task key={task._id}>
-                        <UserDetails><p>{task.userName}</p></UserDetails>
-                        <DateContainer><p>{formatDate(task.date)}</p></DateContainer>
-                        <p>Subject: {task.subject}</p>
-                        <p>Type: {task.type}</p>
-                        <p>Number of solutions are required: {task.numsolution}</p>
-                        <button onClick={() => {
-                            setSelectedTask(task);
-                            setModalVisible(true);
-                        }}>Solve Task</button>
-                        <br/>
-                    </Task>
-                </TaskContainer>
-            ))}
-            {modalVisible && selectedTask && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <h2>Solve Task</h2>
-                        <p>User: {selectedTask.userName}</p>
-                        <p>Date: {formatDate(selectedTask.date)}</p>
-                        <p>Subject: {selectedTask.subject}</p>
-                        <p>Type: {selectedTask.type}</p>
-                        <p>Number of solutions required: {selectedTask.numsolution}</p>
-                        <form onSubmit={(e) => {
-                            e.preventDefault();
-                            const solution = e.target.elements.solution.value;
-                            handleSolveTask(selectedTask._id, solution);
-                            setModalVisible(false); // Close the modal after submitting the solution
-                        }}>
-                            <label htmlFor="solution">Your Solution:</label>
-                            <textarea id="solution" name="solution" required />
-                            <button type="submit">Submit Solution</button>
-                        </form>
-                        <button onClick={() => setModalVisible(false)}>Close</button>
+                    <h2>Hello!&#128075;<br />
+                        Choose task to solve</h2>
+                    {loading && <p>Loading tasks...</p>}
+                    {!loading && tasks.length === 0 && <p>No tasks available</p>}
+                    {tasks.map(task => (
+                        <TaskContainer key={task._id}>
+                            <Task>
+                                <UserDetails><p>{task.userName}</p></UserDetails>
+                                <DateContainer><p>{formatDate(task.date)}</p></DateContainer>
+                                <p>Subject: {task.subject}</p>
+                                <p>Type: {task.type}</p>
+                                <p>Number of solutions are required: {task.numsolution}</p>
+                                <SolveButton onClick={() => {
+                                    setSelectedTask(task);
+                                    setModalVisible(true);
+                                }}>Solve Task</SolveButton>
+                                <br />
+                            </Task>
+                        </TaskContainer>
+                    ))}
+                    {modalVisible && selectedTask && (
+    <Popup>
+        <PopupContant>
+            <h2>Solve Task</h2>
+            <p>User: {selectedTask.userName}</p>
+            <DateContainer><p>{formatDate(selectedTask.date)}</p></DateContainer>
+            <p>Subject: {selectedTask.subject}</p>
+            <p>Type: {selectedTask.type}</p>
+            <p>Number of solutions required: {selectedTask.numsolution}</p>
+            {selectedTask.type === 'Image classification' && (
+                <>
+                    <div>
+                        <p>Images:</p>
+                        {imageUrls.map((url, index) => (
+                            <Img key={`${url}-${index}`} src={url} alt={`Image ${index}`} />
+                        ))}
                     </div>
-                </div>
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const solution = Array.from(new FormData(e.target).getAll('selectedLabels'));
+                        handleSolveTask(selectedTask._id, solution);
+                        setModalVisible(false); 
+                    }}>
+                        <div>
+                            <p>Choose the labels:</p>
+                            {selectedTask.labels.map((label, index) => (
+                                <div key={index}>
+                                    <input
+                                        type="checkbox"
+                                        id={`label-${index}`}
+                                        name="selectedLabels"
+                                        value={label}
+                                    />
+                                    <label htmlFor={`label-${index}`}>{label}</label>
+                                </div>
+                            ))}
+                        </div>
+                        <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
+                        <SolveButton type="submit">Save</SolveButton>
+                        <SolveButton onClick={() => setModalVisible(false)}>Close</SolveButton>
+                        </div>
+                    </form>
+                </>
             )}
-            </>
+        </PopupContant>
+    </Popup>
+)}
+
+                </>
             ) : (
                 <h2>
                 </h2>
-             )}
+            )}
         </HomeWrapper>
     );
 };
