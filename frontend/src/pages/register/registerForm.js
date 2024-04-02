@@ -43,7 +43,8 @@ const RegistrationForm = () => {
 
   return (
     <VerticalContainer>
-      <Title>User Registration</Title>
+      <h2 style={{marginTop: '60px', fontSize: '50px', fontFamily: `'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif` }}>TaskCrowd</h2>
+      <Title>Registration</Title>
       <LoginContainer onSubmit={handleSubmit}>
         <div>
           <InputLbl htmlFor="name">Name:</InputLbl>

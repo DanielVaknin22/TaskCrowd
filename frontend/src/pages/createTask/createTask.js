@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-// import { useNavigate } from 'react-router-dom';
+import { HomeWrapper, Fields, Btn, TextInput, TaskType, FormContainer } from './createTask.style';
+import { useNavigate } from 'react-router-dom';
 
 const CreateTaskPage = () => {
   const [formData, setFormData] = useState({
@@ -21,7 +22,7 @@ const CreateTaskPage = () => {
     .catch(er => console.log(er))
   }
 
-  // const history = useNavigate();
+  const navigate = useNavigate();
 
   const getUserID = () => {
     return localStorage.getItem('userID');
@@ -105,6 +106,8 @@ const CreateTaskPage = () => {
         if (subject !== undefined) {
           localStorage.setItem('subject', subject);
         }
+        alert('Task created successfully');
+        navigate('/home');
       } else {
         console.error('Failed to create task:', response.statusText);
         alert('Failed to create task');
@@ -116,12 +119,12 @@ const CreateTaskPage = () => {
   };
 
   return (
-    <div>
+    <HomeWrapper>
       <h2>Create Task</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
+      <FormContainer onSubmit={handleSubmit}>
+        <Fields>
           <label htmlFor="subject">Subject your project: </label>
-          <input
+          <TextInput
             type="text"
             id="subject"
             name="subject"
@@ -129,24 +132,24 @@ const CreateTaskPage = () => {
             onChange={handleChange}
             required
           />
-        </div>
-        <div>
+        </Fields>
+        <Fields>
           <label htmlFor="taskType">Task Type: </label>
-          <select
+          <TaskType
             id="taskType"
             name="type"
             value={formData.type}
             onChange={handleChange}
             required
           >
-            <option value="">Select Task Type</option>
-            <option value="Image classification">Image classification</option>
-            <option value="Text cataloging">Text cataloging</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="numsolution">number of solution: </label>
-          <input
+            <option style={{color: 'black'}} value="">Select Task Type</option>
+            <option style={{color: 'black'}} value="Image classification">Image classification</option>
+            <option style={{color: 'black'}} value="Text cataloging">Text cataloging</option>
+          </TaskType>
+        </Fields>
+        <Fields>
+          <label htmlFor="numsolution">Amount of required solutions: </label>
+          <TextInput
             type="number"
             id="numsolution"
             name="numsolution"
@@ -154,11 +157,11 @@ const CreateTaskPage = () => {
             onChange={handleChange}
             required
           />
-        </div>
+        </Fields>
         {formData.type === 'Image classification' && (
-          <div>
+          <Fields>
             <label htmlFor="images">Upload Images: </label>
-            <input
+            <TextInput
               type="file"
               id="images"
               name="images"
@@ -167,11 +170,11 @@ const CreateTaskPage = () => {
               multiple
               required
             />
-            <button type="button" onClick={handleAddLabel}>Add Label</button>
+            <Btn style={{width: '100px'}} type="button" onClick={handleAddLabel}>Add Label</Btn>
             {formData.labels.map((label, index) => (
               <div key={index}>
                 <label htmlFor={`label-${index}`}>Label {index + 1}:</label>
-                <input
+                <TextInput
                   type="text"
                   id={`label-${index}`}
                   value={label}
@@ -180,14 +183,14 @@ const CreateTaskPage = () => {
                 />
               </div>
             ))}
-          </div>
+          </Fields>
         )}
         {/* {formData.images.map((image, index) => (
           <img key={index} src={image} alt={`Image ${index}`} />
         ))} */}
-        <button type="submit" onClick={upload}>Continue</button>
-      </form>
-    </div>
+        <Btn type="submit" onClick={upload}>Continue</Btn>
+      </FormContainer>
+    </HomeWrapper>
   );
 };
 

@@ -96,8 +96,7 @@ const SolveTasksPage = () => {
         <HomeWrapper>
             {auth ? (
                 <>
-                    <h2>Hello!&#128075;<br />
-                        Choose task to solve</h2>
+                    <h2>Choose task to solve</h2>
                     {loading && <p>Loading tasks...</p>}
                     {!loading && tasks.length === 0 && <p>No tasks available</p>}
                     {tasks.map(task => (

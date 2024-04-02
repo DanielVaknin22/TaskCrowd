@@ -4,26 +4,34 @@ import { Link } from 'react-router-dom';
 export const HomeContainer = styled.div`
     text-align: center;
     margin-top: -100px;
-    background-color: white;
-    min-height: 100vh;
+    background-color: rgba(0, 0, 0 , .9);
+    min-height: 88.5vh;
 `;
 
 export const Title = styled.h1`
-    color: black;
-    line-height: 7;
+    color: white;
+    line-height: 3;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     margin-top: 100px;
 `;
 
+export const Stitle = styled.p`
+    color: white;
+    line-height: 1.5;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    margin-top: 40px;
+    font-size: 25px;
+`;
+
 export const Btn = styled.button`
-    border: 1px solid black;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 8px;
     padding: 10px;
-    background-color: white;
-    color: black;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
     font-size: 15px;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    margin: 1px;
+
     &:hover{
         cursor: pointer;
         background-color: #8080;
@@ -46,9 +54,11 @@ export const ChooseContainer = styled.div`
   padding: 20px 50px;
   width: 190px;
   height: fit-content;
-  border: 1px solid #21262d;
-  border-radius: 10px;
-  background-color: rgba(200, 200, 200, 0.2);
+  border: 1.2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  background-color: rgba(200, 200, 200, 0.05);
   margin: 0 auto;
-  margin-top: -60px;
+  margin-top: -10px;
+  box-shadow: 0px 2px 4px rgba(255, 255, 255, 0.1);
+
 `;

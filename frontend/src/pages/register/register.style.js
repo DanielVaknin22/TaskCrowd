@@ -15,8 +15,9 @@ export const LoginContainer = styled.div`
   padding: 20px 30px;
   width: 300px;
   height: fit-content;
-  border: 1px solid #21262d;
-  border-radius: 10px;
+  border: 1.2px solid rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
   background-color: rgba(200, 200, 200, 0.2);
   margin: 0 auto;
   margin-top: -60px;
@@ -28,17 +29,15 @@ export const LoginContainer = styled.div`
 
 export const VerticalContainer = styled.div`
     text-align: center;
-    margin-top: -100px;
+    margin-top: -50px;
     background-color: white;
-    min-height: 100vh;
-
 `;
 
 export const Title = styled.h1`
     color: black;
     line-height: 7;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    margin-top: 100px;
+    margin-top: -90px;
 `;
 
 export const SubmitBtn = styled.button`

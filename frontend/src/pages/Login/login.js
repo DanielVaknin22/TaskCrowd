@@ -62,6 +62,7 @@ const LoginForm = () => {
 
   return (
     <VerticalContainer>
+      <h2 style={{marginTop: '60px', fontSize: '50px', fontFamily: `'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif` }}>TaskCrowd</h2>
       <Title>Login </Title>
       <form onSubmit={handleSubmit}>
         <LoginContainer>

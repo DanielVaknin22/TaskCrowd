@@ -4,7 +4,7 @@ import RegistrationForm from './pages/register/registerForm';
 import Navbar from './pages/navbar/navbar';
 import LoginForm from './pages/Login/login';
 import Home from './pages/home/home';
-import CreateTaskPage from './pages/createTask';
+import CreateTaskPage from './pages/createTask/createTask';
 import SolveTasksPage from './pages/solveTask/solveTasks';
 import ProfilePage from './pages/profile';
 
