@@ -35,7 +35,8 @@ const SolveTasksPage = () => {
 
     const handleSolveTask = async (taskId, solution) => {
         try {
-            const response = await fetch(`http://localhost:3000/task/${taskId}/solve`, {
+            const userId = localStorage.getItem('userID'); 
+            const response = await fetch(`http://localhost:3000/task/${taskId}/${userId}/solve`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -65,20 +66,6 @@ const SolveTasksPage = () => {
 
         return `${day} ${month} ${year}`;
     };
-
-    // const fetchImageFilename = async (imageId) => {
-    //     try {
-    //         const response = await fetch(`http://localhost:3000/api/images/${imageId}`); // Endpoint to fetch filename
-    //         if (!response.ok) {
-    //             throw new Error('Failed to fetch filename');
-    //         }
-    //         const data = await response.json();
-    //         return data.filename; // Assuming the response contains the filename
-    //     } catch (error) {
-    //         console.error('Error fetching filename:', error);
-    //         return null;
-    //     }
-    // };
 
     const fetchTaskImages = async (taskId) => {
         try {
@@ -148,8 +135,12 @@ const SolveTasksPage = () => {
                     </div>
                     <form onSubmit={(e) => {
                         e.preventDefault();
-                        const solution = Array.from(new FormData(e.target).getAll('selectedLabels'));
-                        handleSolveTask(selectedTask._id, solution);
+                        const selectedLabels = Array.from(new FormData(e.target).getAll('selectedLabels'));
+                        const solutions = [];
+                        for (let i = 0; i < selectedLabels.length; i++) {
+                            solutions.push(selectedLabels[i]);
+                        }
+                        handleSolveTask(selectedTask._id, solutions);
                         setModalVisible(false); 
                     }}>
                         <div>

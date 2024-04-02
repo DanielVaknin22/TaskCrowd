@@ -19,7 +19,8 @@ const ProfilePage = () => {
     
     const fetchGivenTasks = async () => {
         try {
-            const response = await fetch(`http://localhost:3000/task/get-tasks`);
+            const userId = localStorage.getItem('userID');
+            const response = await fetch(`http://localhost:3000/task/get-tasks/${userId}`);
             if (response.ok) {
                 const tasks = await response.json();
                 setGivenTasks(tasks);
@@ -33,7 +34,8 @@ const ProfilePage = () => {
 
     const fetchSolvedTasks = async () => {
         try {
-            const response = await fetch('http://localhost:3000/task/get-solved-tasks');
+            const userId = localStorage.getItem('userID');
+            const response = await fetch(`http://localhost:3000/task/get-solved-tasks/${userId}`);
             if (response.ok) {
                 const data = await response.json();
                 setSolvedTasks(data);
@@ -64,8 +66,8 @@ const ProfilePage = () => {
             {auth && (
                 <div>
                     <UserProfile>
-                    <h2>User Profile</h2>
-                    <p>Name: {auth.name}</p>
+                    {/* <h2>User Profile</h2> */}
+                    <p style={{ fontWeight: 'bold', fontSize: '25px' }} >Name: {auth.name}</p>
                     <p>Number of Tasks Given: {givenTasks.length}</p>
                     <p>Number of Tasks Solved: {solvedTasks.length}</p>
                     </UserProfile>
@@ -85,7 +87,7 @@ const ProfilePage = () => {
                     <h3>Tasks Solved:</h3>
                         {solvedTasks.map(task => (
                             <Task key={task.id}>
-                                <p>{auth.name}</p>
+                                <p style={{ fontWeight: 'bold' }} >Given by: {task.userID.name}</p>
                                 <DateContainer><p>{formatDate(task.date)}</p></DateContainer>
                                 <p>Subject: {task.subject}</p>
                                 <p>Type: {task.type}</p>

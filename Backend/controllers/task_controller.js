@@ -10,9 +10,7 @@ const { log } = require('console');
 const getTaskImages = async (req, res) => {
   try {
     const taskId = req.params.taskId;
-    // Retrieve images associated with the specified taskId
     const images = await Image.find({ taskID: taskId });
-    // Extract file paths from images and return as response
     const filepaths = images.map(image => image.filePath);
     res.json({ filepaths });
   } catch (error) {
@@ -21,16 +19,45 @@ const getTaskImages = async (req, res) => {
   }
 };
 
-getTasksSolved = async (req, res) => {
+const getTasksSolved = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const tasks = await Task.find({ solvedBy: userId });
+    const userId = req.params.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    const tasksSolvedIds = user.tasksSolved;
+    const tasks = await Task.find({ _id: { $in: tasksSolvedIds } }).populate('userID', 'name');
     res.json(tasks);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+const getTasksGiven = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+    const tasks = await Task.find({ userID: userId });
+    const tasksWithUserNames = tasks.map(task => {
+      return {
+        ...task.toObject(),
+        userName: user.name // Assuming the user object has a 'name' property
+      };
+    });
+
+    res.status(200).send(tasksWithUserNames);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Internal server error');
+  }
+};
+
 
 const getTasks = async (req, res) => {
   try {
@@ -113,7 +140,8 @@ const createTask = async (req, res) => {
 
     res.status(201).json({
       message: 'Task created successfully',
-      task: savedTask
+      task: savedTask, 
+      user: user
     });
     return { user, tasks };
   } catch (error) {
@@ -145,9 +173,35 @@ const uploadImages = async (req, res) => {
   }
 };
 
-// const solvingTask = async (req, res) => {
-  
-// }
+const solveTask = async (req, res) => {
+  try {
+    const { solution } = req.body;
+    const taskId = req.params.taskId;
+    const userId = req.params.userId;
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    for (let i = 0; i < solution.length; i++) {
+      task.solutions.push(solution[i]);
+    }
+    await task.save();
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.tasksSolved.push(task._id);
+
+    await user.save();
+
+    res.json({ message: 'Task solved successfully' });
+  } catch (error) {
+    console.error('Error solving task:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 module.exports = { createTask, getTasks, uploadImages,
-  getTaskImages, getTasksSolved };
+  getTaskImages, getTasksSolved, solveTask, getTasksGiven };

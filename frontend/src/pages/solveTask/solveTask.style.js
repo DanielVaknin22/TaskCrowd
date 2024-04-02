@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const UserProfile = styled.div`
 text-align: left;
-
+margin-top: -25.33px;
 `;
 
 export const HomeWrapper = styled.div`

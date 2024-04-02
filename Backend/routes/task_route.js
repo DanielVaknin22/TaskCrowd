@@ -3,10 +3,10 @@ const router = express.Router();
 const TaskController = require("../controllers/task_controller");
 
 router.post('/create-tasks', TaskController.createTask);
+router.post('/:taskId/:userId/solve', TaskController.solveTask);
 router.get("/solve-tasks", TaskController.getTasks);
-// router.post('/create-tasks', TaskController.imageClassification);
-router.get('/get-tasks', TaskController.getTasks);
-router.get('/get-solved-tasks', TaskController.getTasksSolved);
+router.get('/get-tasks/:userId', TaskController.getTasksGiven);
+router.get('/get-solved-tasks/:userId', TaskController.getTasksSolved);
 router.post('/upload-image', TaskController.uploadImages);
 router.get('/get-images/:taskId', TaskController.getTaskImages);
 
