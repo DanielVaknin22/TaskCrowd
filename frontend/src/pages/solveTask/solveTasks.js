@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { HomeWrapper, TaskContainer, UserDetails, DateContainer, Task, Img, Popup, PopupContant, SolveButton } from './solveTask.style';
+import { HomeWrapper, TaskContainer, UserDetails, DateContainer, Task, Img, Popup, PopupContant,
+    SolveButton, DeleteBtn, TrashBtn, SaveImg, CommentImg } from './solveTask.style';
 
 const SolveTasksPage = () => {
     const [tasks, setTasks] = useState([]);
@@ -8,11 +9,16 @@ const SolveTasksPage = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [imageUrls, setImageUrls] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [userID, setUserID] = useState(null);
 
     useEffect(() => {
         const authData = localStorage.getItem('user');
+        const userId = localStorage.getItem('userID'); 
         if (authData) {
             setAuth(authData);
+        }
+        if (userId) {
+            setUserID(userId);
         }
         fetchTasksForSolving();
     }, []);
@@ -82,6 +88,24 @@ const SolveTasksPage = () => {
           return [];
         }
     };
+
+    const handleDeleteTask = async (taskId) => {
+        try {
+            const response = await fetch(`http://localhost:3000/task/delete-task/${taskId}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                alert('Task deleted successfully');
+                // Remove the deleted task from the state
+                setTasks(tasks.filter(task => task._id !== taskId));
+            } else {
+                throw new Error('Failed to delete task');
+            }
+        } catch (error) {
+            console.error('Error deleting task:', error);
+            alert('Failed to delete task');
+        }
+    };
     
       
       useEffect(() => {
@@ -104,13 +128,16 @@ const SolveTasksPage = () => {
                             <Task>
                                 <UserDetails><p>{task.userName}</p></UserDetails>
                                 <DateContainer><p>{formatDate(task.date)}</p></DateContainer>
-                                <p>Subject: {task.subject}</p>
+                                {task.userID === userID && (
+                                    <DeleteBtn onClick={() => handleDeleteTask(task._id)}> <TrashBtn></TrashBtn> Delete</DeleteBtn>
+                                )}
+                                <p style={{ marginTop: '40px' }}>Subject: {task.subject}</p>
                                 <p>Type: {task.type}</p>
                                 <p>Number of solutions are required: {task.numsolution}</p>
                                 <SolveButton onClick={() => {
                                     setSelectedTask(task);
                                     setModalVisible(true);
-                                }}>Solve Task</SolveButton>
+                                }}><CommentImg></CommentImg>  Solve Task</SolveButton>
                                 <br />
                             </Task>
                         </TaskContainer>
@@ -157,7 +184,7 @@ const SolveTasksPage = () => {
                             ))}
                         </div>
                         <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
-                        <SolveButton type="submit">Save</SolveButton>
+                        <SolveButton type="submit"> <SaveImg></SaveImg> Save</SolveButton>
                         <SolveButton onClick={() => setModalVisible(false)}>Close</SolveButton>
                         </div>
                     </form>

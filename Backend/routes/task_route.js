@@ -9,26 +9,6 @@ router.get('/get-tasks/:userId', TaskController.getTasksGiven);
 router.get('/get-solved-tasks/:userId', TaskController.getTasksSolved);
 router.post('/upload-image', TaskController.uploadImages);
 router.get('/get-images/:taskId', TaskController.getTaskImages);
-
-
-// router.get("/", (req, res) => {
-//   res.send("task get");
-// });
-
-// router.get("/:id", (req, res) => {
-//   res.send("post get by id");
-// });
-  
-// router.post("/", (req, res) => {
-//   res.send("task post" + req.body);
-// });
-  
-// router.put("/:id", (req, res) => {
-//   res.send("task put");
-// });
-  
-// router.delete("/:id", (req, res) => {
-//   res.send("task delete");
-// });
+router.delete('/delete-task/:taskId', TaskController.deleteTask);
   
 module.exports = router;

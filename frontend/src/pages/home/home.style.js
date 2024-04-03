@@ -31,7 +31,6 @@ export const Btn = styled.button`
     color: white;
     font-size: 15px;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-
     &:hover{
         cursor: pointer;
         background-color: #8080;

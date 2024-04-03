@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { HomeWrapper, TaskContainer, UserProfile, DateContainer, Task } from './solveTask/solveTask.style';
+import { HomeWrapper, TaskContainer, UserProfile, DateContainer, Task, DeleteBtn, TrashBtn } from './solveTask/solveTask.style';
 
 const ProfilePage = () => {
     const [auth, setAuth] = useState(null);
     const [givenTasks, setGivenTasks] = useState([]);
     const [solvedTasks, setSolvedTasks] = useState([]);
+    const [userID, setUserID] = useState(null);
 
     useEffect(() => {
         const authData = localStorage.getItem('user');
@@ -12,6 +13,10 @@ const ProfilePage = () => {
             const parsedAuthData = JSON.parse(authData);
             console.log('Parsed auth data:', parsedAuthData);
             setAuth(parsedAuthData);
+        }
+        const userId = localStorage.getItem('userID'); 
+        if (userId) {
+            setUserID(userId);
         }
         fetchSolvedTasks();
         fetchGivenTasks();
@@ -61,6 +66,24 @@ const ProfilePage = () => {
         return `${day} ${month} ${year}`;
     };
 
+    const handleDeleteTask = async (taskId) => {
+        try {
+            const response = await fetch(`http://localhost:3000/task/delete-task/${taskId}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                alert('Task deleted successfully');
+                // Remove the deleted task from the state
+                setGivenTasks(givenTasks.filter(task => task._id !== taskId));
+            } else {
+                throw new Error('Failed to delete task');
+            }
+        } catch (error) {
+            console.error('Error deleting task:', error);
+            alert('Failed to delete task');
+        }
+    };
+
     return (
         <HomeWrapper>
             {auth && (
@@ -77,7 +100,10 @@ const ProfilePage = () => {
                             <Task key={task.id}>
                                 <p style={{ fontWeight: 'bold' }}>{auth.name}</p>
                                 <DateContainer><p>{formatDate(task.date)}</p></DateContainer>
-                                <p>Subject: {task.subject}</p>
+                                {task.userID === userID && (
+                                    <DeleteBtn onClick={() => handleDeleteTask(task._id)}> <TrashBtn></TrashBtn> Delete</DeleteBtn>
+                                )}
+                                <p style={{ marginTop: '40px' }}>Subject: {task.subject}</p>
                                 <p>Type: {task.type}</p>
                                 <p>Number of solutions are required: {task.numsolution}</p>
                                 </Task>

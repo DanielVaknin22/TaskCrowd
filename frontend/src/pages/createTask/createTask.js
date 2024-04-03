@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { HomeWrapper, Fields, Btn, TextInput, TaskType, FormContainer } from './createTask.style';
+import { HomeWrapper, Fields, Btn, TextInput, TaskType, FormContainer, PlusImg } from './createTask.style';
 import { useNavigate } from 'react-router-dom';
 
 const CreateTaskPage = () => {
@@ -170,7 +170,7 @@ const CreateTaskPage = () => {
               multiple
               required
             />
-            <Btn style={{width: '100px'}} type="button" onClick={handleAddLabel}>Add Label</Btn>
+            <Btn style={{width: '100px'}} type="button" onClick={handleAddLabel}> <PlusImg>+</PlusImg> Add Label</Btn>
             {formData.labels.map((label, index) => (
               <div key={index}>
                 <label htmlFor={`label-${index}`}>Label {index + 1}:</label>

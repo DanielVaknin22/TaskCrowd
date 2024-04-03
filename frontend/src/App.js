@@ -39,7 +39,8 @@ const App = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/give-tasks" element={ <CreateTaskPage /> } />
           <Route path="/solve-tasks" element={<SolveTasksPage />} />
-          <Route path="/user/profile" element={<ProfilePage />} />
+          <Route path="/user/profile" element={<ProfilePage />} /> 
+          <Route path="/" element={<LoginForm/>} />
 
         </Routes>
       </div>

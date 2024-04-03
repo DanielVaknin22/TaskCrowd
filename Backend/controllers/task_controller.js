@@ -5,7 +5,7 @@ const Image = require('../models/image_model');
 // const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const { log } = require('console');
+const { log, Console } = require('console');
 
 const getTaskImages = async (req, res) => {
   try {
@@ -203,5 +203,29 @@ const solveTask = async (req, res) => {
   }
 };
 
+const deleteTask = async (req, res) => {
+  const { user } = req;
+  const taskId = req.params.taskId;
+  try {
+    console.log('Received taskId:', taskId);
+
+    const task = await Task.findById(taskId);
+    console.log('Recived task:', task);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    if (task && task.userID && user && user.id && task.userID.toString() !== user.id) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    await Task.deleteOne({ _id: taskId });
+    res.json({ message: 'Task deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting task:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = { createTask, getTasks, uploadImages,
-  getTaskImages, getTasksSolved, solveTask, getTasksGiven };
+  getTaskImages, getTasksSolved, solveTask, getTasksGiven, deleteTask };
