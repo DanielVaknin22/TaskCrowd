@@ -57,11 +57,6 @@ export const Task = styled.div`
   border: 1.2px solid rgba(255, 255, 255, 0.1);
 `;
 
-export const Img = styled.img`
-    width: 200px;
-
-`;
-
 export const Popup = styled.div`
     width: 100%;
     height: 100%;
@@ -82,7 +77,7 @@ export const PopupContant = styled.div`
     text-align: start;
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0px 2px 4px rgba(255, 255, 255, 0.1);
-    margin-top: 350px;
+    margin-top: 900px;
 `;
 
 export const SolveButton = styled.button`

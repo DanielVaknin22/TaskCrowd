@@ -32,12 +32,6 @@ const taskSchema = new mongoose.Schema({
             ref: 'Image',
             required: true,
         }
-    ],
-    solutions: [
-        {
-            type: String,
-            required: false
-        }
     ]
 });
 

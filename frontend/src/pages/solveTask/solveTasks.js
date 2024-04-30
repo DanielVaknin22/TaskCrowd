@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HomeWrapper, TaskContainer, UserDetails, DateContainer, Task, Img, Popup, PopupContant,
+import { HomeWrapper, TaskContainer, UserDetails, DateContainer, Task, Popup, PopupContant,
     SolveButton, DeleteBtn, TrashBtn, SaveImg, CommentImg } from './solveTask.style';
 
 const SolveTasksPage = () => {
@@ -39,7 +39,7 @@ const SolveTasksPage = () => {
         }
     };
 
-    const handleSolveTask = async (taskId, solution) => {
+    const handleSolveTask = async (taskId, solutions, labels) => {
         try {
             const userId = localStorage.getItem('userID'); 
             const response = await fetch(`http://localhost:3000/task/${taskId}/${userId}/solve`, {
@@ -47,7 +47,7 @@ const SolveTasksPage = () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ solution })
+                body: JSON.stringify({ solution: solutions, labels: labels })
             });
             if (response.ok) {
                 console.log('Task solved successfully');
@@ -153,46 +153,52 @@ const SolveTasksPage = () => {
             <p>Number of solutions required: {selectedTask.numsolution}</p>
             {selectedTask.type === 'Image classification' && (
                 <>
-                    <div>
+                    {/* <div>
                         <p>Images:</p>
                         {imageUrls.map((url, index) => (
                             <Img key={`${url}-${index}`} src={url} alt={`Image ${index}`} />
                         ))}
-                    </div>
+                    </div> */}
                     <form onSubmit={(e) => {
-                        e.preventDefault();
-                        const selectedLabels = Array.from(new FormData(e.target).getAll('selectedLabels'));
-                        const solutions = [];
-                        for (let i = 0; i < selectedLabels.length; i++) {
-                            solutions.push(selectedLabels[i]);
-                        }
-                        handleSolveTask(selectedTask._id, solutions);
-                        setModalVisible(false); 
-                    }}>
-                        <div>
-                            <p>Choose the labels:</p>
-                            {selectedTask.labels.map((label, index) => (
-                                <div key={index}>
-                                    <input
-                                        type="checkbox"
-                                        id={`label-${index}`}
-                                        name="selectedLabels"
-                                        value={label}
-                                    />
-                                    <label htmlFor={`label-${index}`}>{label}</label>
-                                </div>
-                            ))}
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const selectedLabels = imageUrls.map((url, index) => {
+        const selectedLabel = formData.get(`selectedLabels-${index}`);
+        return { image_url: url, label: selectedLabel };
+    });
+    const solutions = imageUrls.map((url, index) => selectedTask.images[index]); // Only include image IDs
+    handleSolveTask(selectedTask._id, solutions, selectedLabels);
+    setModalVisible(false); 
+}}>
+
+                {imageUrls.map((url, index) => (
+                    <div key={index}>
+                        <img style={{display: 'flex', width: '200px', height: 'auto', marginTop: '200px'}} src={url} alt={`${index}`} />
+                    <div>
+                        {selectedTask.labels.map((label, labelIndex) => (
+                        <div key={labelIndex}>
+                            <input
+                            type="radio"
+                            id={`label-${index}-${labelIndex}`}
+                            name={`selectedLabels-${index}`}
+                            value={label}
+                            />
+                            <label htmlFor={`label-${index}-${labelIndex}`}>{label}</label>
                         </div>
-                        <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
-                        <SolveButton type="submit"> <SaveImg></SaveImg> Save</SolveButton>
-                        <SolveButton onClick={() => setModalVisible(false)}>Close</SolveButton>
-                        </div>
-                    </form>
+                        ))}
+                    </div>
+                    </div>
+                ))}
+                <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
+                <SolveButton type="submit"> <SaveImg></SaveImg> Save</SolveButton>
+                <SolveButton onClick={() => setModalVisible(false)}>Close</SolveButton>
+                </div>
+                </form>
                 </>
-            )}
-        </PopupContant>
-    </Popup>
-)}
+                            )}
+                        </PopupContant>
+                    </Popup>
+                )}
 
                 </>
             ) : (

@@ -6,6 +6,7 @@ const Image = require('../models/image_model');
 const fs = require('fs');
 const path = require('path');
 const { log, Console } = require('console');
+const Label = require('../models/label_model');
 
 const getTaskImages = async (req, res) => {
   try {
@@ -175,25 +176,42 @@ const uploadImages = async (req, res) => {
 
 const solveTask = async (req, res) => {
   try {
-    const { solution } = req.body;
+    const { solution } = req.body; // Retrieve solutions from the request body
     const taskId = req.params.taskId;
     const userId = req.params.userId;
+
     const task = await Task.findById(taskId);
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
-    for (let i = 0; i < solution.length; i++) {
-      task.solutions.push(solution[i]);
+
+    // Fetch all images associated with the task
+    const images = await Image.find({ taskID: taskId });
+    if (!images || images.length === 0) {
+      return res.status(404).json({ error: 'Images not found for the task' });
     }
+    console.log('Solutions:', solution);
+    console.log('Images:', images);
+    
+    // Update solutions of each image based on the provided solutions
+    for (let i = 0; i < solution.length && i < images.length; i++) {
+      if (images[i]) {
+        images[i].labels = solution[i];
+        await images[i].save();
+      } else {
+        console.error('Image not found for solution:', solutions[i]);
+      }
+    }    
+
+    // Update the task and user information
+    task.status = 'Solved'; // Update task status or any other relevant information
     await task.save();
 
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-
     user.tasksSolved.push(task._id);
-
     await user.save();
 
     res.json({ message: 'Task solved successfully' });

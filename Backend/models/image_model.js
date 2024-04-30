@@ -18,7 +18,13 @@ const imageSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Task',
     required: true
-  }
+  },
+  labels: [
+    {
+      type: String,
+      required: false
+    }
+]
 });
 
 module.exports = mongoose.model('Image', imageSchema);
