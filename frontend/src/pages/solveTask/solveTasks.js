@@ -173,7 +173,7 @@ const SolveTasksPage = () => {
 
                 {imageUrls.map((url, index) => (
                     <div key={index}>
-                        <img style={{display: 'flex', width: '200px', height: 'auto', marginTop: '200px'}} src={url} alt={`${index}`} />
+                        <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />
                     <div>
                         {selectedTask.labels.map((label, labelIndex) => (
                         <div key={labelIndex}>
