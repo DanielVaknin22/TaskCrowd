@@ -10,6 +10,7 @@ const CreateTaskPage = () => {
     numsolution: '',
     images: [],
     labels: [],
+    text: '',
   });
   const upload = () => {
     const formDataUpload = new FormData();
@@ -185,6 +186,19 @@ const CreateTaskPage = () => {
             ))}
           </Fields>
         )}
+        {formData.type === 'Text cataloging' && (
+          <Fields>
+          <label htmlFor="text">Text: </label>
+          <textarea
+            id="text"
+            name="text"
+            value={formData.text}
+            onChange={handleChange}
+            required
+          ></textarea>
+          </Fields>
+        )}
+
         {/* {formData.images.map((image, index) => (
           <img key={index} src={image} alt={`Image ${index}`} />
         ))} */}

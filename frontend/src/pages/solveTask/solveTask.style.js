@@ -144,3 +144,41 @@ height: 20px;
 background-repeat: no-repeat;
 display: inline-block;
 `;
+
+export const Btn = styled.button`
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 15px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    height: 40px;
+    &:hover{
+        cursor: pointer;
+        background-color: #8080;
+    }
+`;
+
+export const TextInput = styled.input`
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin-bottom: 5px;
+  color: white;
+  padding: 5px 5px;
+  font-size: 14px;
+  ::placeholder {
+    color: white;
+  }
+  &:focus {
+    border: 1px solid white;
+  }
+
+`;
+
+export const PlusImg = styled.image`
+    font-size: 30px;
+    margin-top: -19px;
+    font-weight: bold;
+    margin-left: -10px;
+`;

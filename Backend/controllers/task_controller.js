@@ -88,7 +88,7 @@ const getTasks = async (req, res) => {
 const createTask = async (req, res) => {
   try {
     console.log("create task");
-    const { userID, subject, type, numsolution, labels, images } = req.body;
+    const { userID, subject, type, numsolution, labels, images, text } = req.body;
     console.log('Received data:', { userID, subject, type, numsolution });
     let newTask;
 
@@ -125,7 +125,18 @@ const createTask = async (req, res) => {
       console.log('Received data:', { userID, subject, type, numsolution, labels });
       newTask.images = savedImages.map(image => image._id);
 
-    } else {
+    } else if(type === 'Text cataloging'){
+      newTask = new Task({ 
+        userID,
+        subject, 
+        type,
+        numsolution, 
+        text 
+      });
+      const savedTask = await newTask.save();
+
+    }
+     else {
       newTask = new Task({ userID, subject, type, numsolution });
     }
 
@@ -148,6 +159,16 @@ const createTask = async (req, res) => {
   } catch (error) {
     console.error('Failed to create task:', error);
     res.status(500).json({ error: 'Failed to create task' });
+  }
+};
+
+const getTasksForLabeling = async (req, res) => {
+  try {
+    const tasks = await Task.find({ type: 'Text cataloging' }); // Fetch text cataloging tasks
+    res.status(200).send(tasks);
+  } catch (error) {
+    console.error('Error fetching tasks for labeling:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -176,7 +197,7 @@ const uploadImages = async (req, res) => {
 
 const solveTask = async (req, res) => {
   try {
-    const { solution } = req.body; // Retrieve solutions from the request body
+    const { solution, labels } = req.body;
     const taskId = req.params.taskId;
     const userId = req.params.userId;
 
@@ -185,26 +206,28 @@ const solveTask = async (req, res) => {
       return res.status(404).json({ error: 'Task not found' });
     }
 
-    // Fetch all images associated with the task
-    const images = await Image.find({ taskID: taskId });
-    if (!images || images.length === 0) {
-      return res.status(404).json({ error: 'Images not found for the task' });
+    if (task.type === 'Text cataloging') {
+      task.labels = labels;
     }
-    console.log('Solutions:', solution);
-    console.log('Images:', images);
-    
-    // Update solutions of each image based on the provided solutions
-    for (let i = 0; i < solution.length && i < images.length; i++) {
-      if (images[i]) {
-        images[i].labels = solution[i];
-        await images[i].save();
-      } else {
-        console.error('Image not found for solution:', solutions[i]);
+    else if (task.type === 'Image classification'){
+      const images = await Image.find({ taskID: taskId });
+      if (!images || images.length === 0) {
+        return res.status(404).json({ error: 'Images not found for the task' });
       }
-    }    
-
-    // Update the task and user information
-    task.status = 'Solved'; // Update task status or any other relevant information
+    
+      console.log('Solutions:', solution);
+      console.log('Images:', images);
+      
+      for (let i = 0; i < solution.length && i < images.length; i++) {
+        if (images[i]) {
+          images[i].labels = solution[i];
+          await images[i].save();
+        } else {
+          console.error('Image not found for solution:', solutions[i]);
+        }
+      }    
+    }
+    task.status = 'Solved';
     await task.save();
 
     const user = await User.findById(userId);
@@ -246,4 +269,5 @@ const deleteTask = async (req, res) => {
 };
 
 module.exports = { createTask, getTasks, uploadImages,
-  getTaskImages, getTasksSolved, solveTask, getTasksGiven, deleteTask };
+  getTaskImages, getTasksSolved, solveTask, getTasksGiven, 
+  deleteTask, getTasksForLabeling };

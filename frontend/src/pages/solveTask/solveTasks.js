@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HomeWrapper, TaskContainer, UserDetails, DateContainer, Task, Popup, PopupContant,
-    SolveButton, DeleteBtn, TrashBtn, SaveImg, CommentImg } from './solveTask.style';
+    SolveButton, DeleteBtn, TrashBtn, SaveImg, CommentImg, Btn, TextInput,
+PlusImg } from './solveTask.style';
 
 const SolveTasksPage = () => {
     const [tasks, setTasks] = useState([]);
@@ -10,6 +11,9 @@ const SolveTasksPage = () => {
     const [imageUrls, setImageUrls] = useState([]);
     const [loading, setLoading] = useState(false);
     const [userID, setUserID] = useState(null);
+    const [formData, setFormData] = useState({
+        labels: [],
+      });
 
     useEffect(() => {
         const authData = localStorage.getItem('user');
@@ -38,6 +42,22 @@ const SolveTasksPage = () => {
             setLoading(false);
         }
     };
+
+    const handleAddLabel = () => {
+        setFormData({
+          ...formData,
+          labels: [...formData.labels, '']
+        });
+    };
+
+    const handleLabelChange = (index, value) => {
+        const newLabels = [...formData.labels];
+        newLabels[index] = value;
+        setFormData({
+          ...formData,
+          labels: newLabels
+        });
+      };
 
     const handleSolveTask = async (taskId, solutions, labels) => {
         try {
@@ -189,6 +209,7 @@ const SolveTasksPage = () => {
                     </div>
                     </div>
                 ))}
+                
                 <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
                 <SolveButton type="submit"> <SaveImg></SaveImg> Save</SolveButton>
                 <SolveButton onClick={() => setModalVisible(false)}>Close</SolveButton>
@@ -196,6 +217,35 @@ const SolveTasksPage = () => {
                 </form>
                 </>
                             )}
+                            {selectedTask.type === 'Text cataloging' && (
+                                <>
+                                <p>Text: {selectedTask.text}</p>
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                handleSolveTask(selectedTask._id, [], formData.labels);
+                                setModalVisible(false);
+                            }}>
+
+                            <Btn style={{width: '100px'}} type="button" onClick={handleAddLabel}> <PlusImg>+</PlusImg> Add Label</Btn>
+                                {formData.labels.map((label, index) => (
+                                <div key={index}>
+                                    <label htmlFor={`label-${index}`}>Label {index + 1}:</label>
+                                    <TextInput
+                                    type="text"
+                                    id={`label-${index}`}
+                                    value={label}
+                                    onChange={(e) => handleLabelChange(index, e.target.value)}
+                                    required
+                                    />
+                                </div>
+                                ))}
+                                <div>
+                                    <SolveButton type="submit"> <SaveImg /> Save</SolveButton>
+                                    <SolveButton onClick={() => setModalVisible(false)}>Close</SolveButton>
+                                </div>
+                            </form>
+                            </>
+                        )}
                         </PopupContant>
                     </Popup>
                 )}
