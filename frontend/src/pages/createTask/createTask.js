@@ -146,6 +146,8 @@ const CreateTaskPage = () => {
             <option style={{color: 'black'}} value="">Select Task Type</option>
             <option style={{color: 'black'}} value="Image classification">Image classification</option>
             <option style={{color: 'black'}} value="Text cataloging">Text cataloging</option>
+            <option style={{color: 'black'}} value="Image cataloging">Image cataloging</option>
+
           </TaskType>
         </Fields>
         <Fields>
@@ -199,9 +201,20 @@ const CreateTaskPage = () => {
           </Fields>
         )}
 
-        {/* {formData.images.map((image, index) => (
-          <img key={index} src={image} alt={`Image ${index}`} />
-        ))} */}
+{formData.type === 'Image cataloging' && (
+          <Fields>
+            <label htmlFor="images">Upload Images: </label>
+            <TextInput
+              type="file"
+              id="images"
+              name="images"
+              accept="image/*"
+              onChange={handleImageChange}
+              multiple
+              required
+            />
+          </Fields>
+        )}
         <Btn type="submit" onClick={upload}>Continue</Btn>
       </FormContainer>
     </HomeWrapper>

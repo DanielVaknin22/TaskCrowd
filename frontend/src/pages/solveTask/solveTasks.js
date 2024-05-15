@@ -67,9 +67,10 @@ const SolveTasksPage = () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ solution: solutions, labels: labels })
+                body: JSON.stringify({ solution: labels, labels: [...selectedTask.labels, ...formData.labels] })
             });
             if (response.ok) {
+                console.log('labels:', labels);
                 console.log('Task solved successfully');
             } else {
                 console.error('Failed to solve task:', response.statusText);
@@ -173,23 +174,17 @@ const SolveTasksPage = () => {
             <p>Number of solutions required: {selectedTask.numsolution}</p>
             {selectedTask.type === 'Image classification' && (
                 <>
-                    {/* <div>
-                        <p>Images:</p>
-                        {imageUrls.map((url, index) => (
-                            <Img key={`${url}-${index}`} src={url} alt={`Image ${index}`} />
-                        ))}
-                    </div> */}
                     <form onSubmit={(e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const selectedLabels = imageUrls.map((url, index) => {
-        const selectedLabel = formData.get(`selectedLabels-${index}`);
-        return { image_url: url, label: selectedLabel };
-    });
-    const solutions = imageUrls.map((url, index) => selectedTask.images[index]); // Only include image IDs
-    handleSolveTask(selectedTask._id, solutions, selectedLabels);
-    setModalVisible(false); 
-}}>
+                        e.preventDefault();
+                        const formData = new FormData(e.target);
+                        const selectedLabels = imageUrls.map((url, index) => {
+                            const selectedLabel = formData.get(`selectedLabels-${index}`);
+                            return { image_url: url, label: selectedLabel };
+                        });
+                        const solutions = imageUrls.map((url, index) => selectedTask.images[index]); // Only include image IDs
+                        handleSolveTask(selectedTask._id, solutions, selectedLabels);
+                        setModalVisible(false); 
+                    }}>
 
                 {imageUrls.map((url, index) => (
                     <div key={index}>
@@ -246,6 +241,44 @@ const SolveTasksPage = () => {
                             </form>
                             </>
                         )}
+
+                {selectedTask.type === 'Image cataloging' && (
+                    <>
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.target);
+                        const selectedLabels = imageUrls.map((url, index) => {
+                            const selectedLabel = formData.get(`selectedLabels-${index}`);
+                            return { image_url: url, label: selectedLabel };
+                        });
+                        const solutions = imageUrls.map((url, index) => selectedTask.images[index]); // Only include image IDs
+                        handleSolveTask(selectedTask._id, solutions, selectedLabels);
+                        setModalVisible(false); 
+                    }}>
+
+                {imageUrls.map((url, index) => (
+                    <div key={index}>
+                        <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />
+                                <div>
+                                <label htmlFor={`label-${index}`}>Label:</label>
+                                    <TextInput
+                                    type="text"
+                                    id={`label-${index}`}
+                                    value={formData.labels[index] || ''}
+                                    onChange={(e) => handleLabelChange(index, e.target.value)}
+                                    required
+                                    />
+                                </div>
+                                
+                </div>
+                ))}
+                <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
+                <SolveButton type="submit"> <SaveImg></SaveImg> Save</SolveButton>
+                <SolveButton onClick={() => setModalVisible(false)}>Close</SolveButton>
+                </div>
+                </form>
+                </>
+                )}
                         </PopupContant>
                     </Popup>
                 )}

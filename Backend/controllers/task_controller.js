@@ -135,6 +135,35 @@ const createTask = async (req, res) => {
       });
       const savedTask = await newTask.save();
 
+    } else if(type === 'Image cataloging'){
+      newTask = new Task({
+        userID,
+        subject,
+        type,
+        numsolution
+      });
+      const savedTask = await newTask.save();
+
+      const savedImages = await Promise.all(images.map(async (base64ImageData) => {
+        const base64Image = base64ImageData.split(';base64,').pop();
+        const filename = `image_${Date.now()}.jpg`; 
+        const directoryPath = path.join(__dirname, '..', 'uploads');
+        const filePath = path.join('uploads', filename);
+        if (!fs.existsSync(directoryPath)) {
+          fs.mkdirSync(directoryPath, { recursive: true });
+        }
+
+        await fs.promises.writeFile(filePath, base64Image, { encoding: 'base64' });
+        
+        const newImage = new Image({
+          taskID: savedTask._id,
+          userID,
+          filename,
+          filePath,
+        });
+        return await newImage.save();
+      }));
+      newTask.images = savedImages.map(image => image._id);
     }
      else {
       newTask = new Task({ userID, subject, type, numsolution });
@@ -207,8 +236,10 @@ const solveTask = async (req, res) => {
     }
 
     if (task.type === 'Text cataloging') {
-      task.labels = labels;
+      const uniqueLabels = [...new Set([...task.labels, ...labels])];
+      task.labels = uniqueLabels;
     }
+    
     else if (task.type === 'Image classification'){
       const images = await Image.find({ taskID: taskId });
       if (!images || images.length === 0) {
@@ -220,13 +251,39 @@ const solveTask = async (req, res) => {
       
       for (let i = 0; i < solution.length && i < images.length; i++) {
         if (images[i]) {
-          images[i].labels = solution[i];
+          console.log('Labels:', solution[i].label);
+      if (!Array.isArray(solution[i].label)) {
+        solution[i].label = [solution[i].label];
+      }
+      solution[i].label.forEach(label => {
+        images[i].labels.push(label);
+      });
+      
           await images[i].save();
         } else {
           console.error('Image not found for solution:', solutions[i]);
         }
       }    
     }
+    else if (task.type === 'Image cataloging'){
+      const images = await Image.find({ taskID: taskId });
+      if (!images || images.length === 0) {
+        return res.status(404).json({ error: 'Images not found for the task' });
+      }
+    
+      console.log('Solutions:', solution);
+      console.log('Images:', images);
+      
+      for (let i = 0; i < solution.length && i < images.length; i++) {
+        if (images[i]) {
+          images[i].labels = [...images[i].labels, labels[i]];
+          await images[i].save();
+        } else {
+          console.error('Image not found for solution:', solutions[i]);
+        }
+      }        
+    }
+
     task.status = 'Solved';
     await task.save();
 

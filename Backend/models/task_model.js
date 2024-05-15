@@ -24,19 +24,21 @@ const taskSchema = new mongoose.Schema({
     },
     text: {
         type: String,
-        required: true
     },
     labels: [{
         type: String,
-        required: true
     }],
     images: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Image',
-            required: true,
         }
-    ]
+    ],
+    status: {
+        type: String,
+        enum: ['Created', 'Solved', 'Reviewed'],
+        default: 'Created'
+    }
 });
 
 module.exports = mongoose.model("Task", taskSchema);
