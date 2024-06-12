@@ -54,7 +54,7 @@ const LoginForm = ({ onLogin }) => {
         localStorage.setItem('role', role);
         console.log('Login successful');
         onLogin(role);
-        navigate('/home');
+        navigate(role === 'admin' ? '/admin' : '/home');
       }
     } catch (error) {
       console.error(error);

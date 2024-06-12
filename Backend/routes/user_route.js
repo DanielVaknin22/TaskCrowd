@@ -12,7 +12,7 @@ router.post("/", UserController.postUsers);
 router.post('/register', UserController.registerUser);
 router.post("/login", UserController.loginUser);
 
-
+router.get('/:id', UserController.getUserById);
 router.put("/:id", UserController.putUsers);
 
 router.delete("/:id", UserController.deleteUsers);

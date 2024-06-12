@@ -7,7 +7,8 @@ import Home from './pages/home/home';
 import CreateTaskPage from './pages/createTask/createTask';
 import SolveTasksPage from './pages/solveTask/solveTasks';
 import ProfilePage from './pages/profile';
-import AdminPage from './pages/admin';
+import AdminPage from './pages/admin/admin';
+import UserProfile from './pages/admin/userProfile';
 
 const App = () => {
   const [isAuth, setIsAuth] = useState(false);
@@ -49,6 +50,7 @@ const App = () => {
           <Route path="/solve-tasks" element={<SolveTasksPage />} />
           <Route path="/user/profile" element={<ProfilePage />} />
           <Route path="/admin" element={isAuth && userRole === 'admin' ? <AdminPage /> : <Navigate to="/user/login" />} />
+          <Route path="/admin/user/:id" element={isAuth && userRole === 'admin' ? <UserProfile /> : <Navigate to="/user/login" />} />
           <Route path="/" element={<LoginForm onLogin={handleLogin} />} />
         </Routes>
       </div>

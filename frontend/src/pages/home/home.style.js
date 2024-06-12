@@ -30,6 +30,7 @@ export const Btn = styled.button`
     background-color: rgba(255, 255, 255, 0.1);
     color: white;
     font-size: 15px;
+    margin: 10px;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     &:hover{
         cursor: pointer;
@@ -51,7 +52,7 @@ export const ChooseContainer = styled.div`
   flex-direction: line;
   align-items: center;
   padding: 20px 50px;
-  width: 190px;
+  width: 230px;
   height: fit-content;
   border: 1.2px solid rgba(255, 255, 255, 0.1);
   border-radius: 15px;
