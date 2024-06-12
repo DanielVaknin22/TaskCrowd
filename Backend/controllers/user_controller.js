@@ -1,4 +1,5 @@
 const User = require("../models/user_model");
+const lecturerEmails = ['hadasda1@ac.sce.ac.il', 'liorar1@ac.sce.ac.il', 'tammarm@gmail.com', 'marinak@sce.ac.il', 'eliav.menachi@gmail.com'];
 
 const getUsers = async (req, res) => {
   console.log("user get");
@@ -62,7 +63,8 @@ const registerUser = async (req, res) => {
     return res.status(400).json({ error: 'Invalid email format. Must be in the form _____@ac.sce.ac.il' });
   }
   try {
-    const user = await User.create({ name, email, password });
+    const role = lecturerEmails.includes(email) ? 'admin' : 'user';
+    const user = await User.create({ name, email, password, role });
     res.status(201).json({ message: 'User registered successfully', user });
   } catch (error) {
     res.status(500).json({ error: 'Error registering user' });
@@ -84,7 +86,9 @@ const loginUser = async (req, res) => {
           message: "Login successful", 
           userID: user._id, 
           name: user.name, 
-          email: user.email 
+          email: user.email,
+          role: user.role
+ 
       });
   } catch (error) {
       res.status(500).json({ error: error.message });

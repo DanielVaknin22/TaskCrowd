@@ -22,7 +22,12 @@ const userSchema = new mongoose.Schema({
     tasksSolved: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Task'
-    }]
+    }],
+    role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user'
+    },
 });
 
 module.exports = mongoose.model("User", userSchema);

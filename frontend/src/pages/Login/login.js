@@ -1,9 +1,10 @@
+// src/pages/Login/login.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { VerticalContainer, Title, InputLbl, LoginContainer, 
-  SubmitBtn, TextInput, NavLink } from './login.style'
+  SubmitBtn, TextInput, NavLink } from './login.style';
 
-const LoginForm = () => {
+const LoginForm = ({ onLogin }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -13,7 +14,7 @@ const LoginForm = () => {
 
   useEffect(() => {
     const auth = localStorage.getItem('user');
-    if(auth){
+    if (auth) {
       navigate('/home');
     }
   }, [navigate]);
@@ -45,12 +46,14 @@ const LoginForm = () => {
       } else {
         const responseData = await response.json();
         alert(responseData.message);
-        const { userID } = responseData;
+        const { userID, role } = responseData;
         if (userID !== undefined) {
           localStorage.setItem('userID', userID);
         }
         localStorage.setItem('user', JSON.stringify(responseData));
+        localStorage.setItem('role', role);
         console.log('Login successful');
+        onLogin(role);
         navigate('/home');
       }
     } catch (error) {
@@ -58,7 +61,6 @@ const LoginForm = () => {
       alert('Failed to login');
     }
   };
-  
 
   return (
     <VerticalContainer>
@@ -84,7 +86,7 @@ const LoginForm = () => {
             onChange={handleChange}
             required
           />
-        <SubmitBtn type="submit">Login</SubmitBtn>
+          <SubmitBtn type="submit">Login</SubmitBtn>
         </LoginContainer>
 
         <InputLbl>&emsp;&emsp;Don't have an account?&nbsp;&nbsp;<NavLink to="/user/register">Sign up</NavLink> </InputLbl>

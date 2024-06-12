@@ -4,6 +4,7 @@ const dotenv = require("dotenv").config();
 const mongoose = require("mongoose");
 const userRoute = require("./routes/user_route");
 const taskRoute = require("./routes/task_route");
+const adminRoute = require("./routes/admin_route");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require("multer"); 
@@ -21,6 +22,7 @@ const initApp = () => {
     app.use("/user", userRoute);
     app.use("/task", taskRoute);
     app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+    app.use('/admin', adminRoute);
 
     const storage = multer.diskStorage({
       destination: function (req, file, cb) {
