@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { HomeWrapper, Fields, Btn, TextInput, TaskType, FormContainer, PlusImg } from './createTask.style';
+import { HomeWrapper, Fields, Btn, TextInput, TaskType, FormContainer, PlusImg, TextArea } from './createTask.style';
 import { useNavigate } from 'react-router-dom';
 
 const CreateTaskPage = () => {
@@ -147,6 +147,7 @@ const CreateTaskPage = () => {
             <option style={{color: 'black'}} value="Image classification">Image classification</option>
             <option style={{color: 'black'}} value="Text cataloging">Text cataloging</option>
             <option style={{color: 'black'}} value="Image cataloging">Image cataloging</option>
+            <option style={{color: 'black'}} value="Label classification">Label classification</option>
 
           </TaskType>
         </Fields>
@@ -191,13 +192,13 @@ const CreateTaskPage = () => {
         {formData.type === 'Text cataloging' && (
           <Fields>
           <label htmlFor="text">Text: </label>
-          <textarea
+          <TextArea
             id="text"
             name="text"
             value={formData.text}
             onChange={handleChange}
             required
-          ></textarea>
+          ></TextArea>
           </Fields>
         )}
 
@@ -214,6 +215,19 @@ const CreateTaskPage = () => {
               required
             />
           </Fields>
+        )}
+
+{formData.type === 'Label classification' && (
+         <Fields>
+         <label htmlFor="label">Label: </label>
+         <TextInput
+           id="label"
+           name="label"
+           value={formData.label}
+           onChange={(e) => handleLabelChange(0, e.target.value)}
+           required
+         ></TextInput>
+         </Fields>
         )}
         <Btn type="submit" onClick={upload}>Continue</Btn>
       </FormContainer>

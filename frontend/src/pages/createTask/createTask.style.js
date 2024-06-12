@@ -91,3 +91,23 @@ export const PlusImg = styled.image`
     font-weight: bold;
     margin-left: -10px;
 `;
+
+
+export const TextArea = styled.textarea`
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin-bottom: 5px;
+  color: white;
+  padding: 5px 5px;
+  font-size: 14px;
+  height: 200px;
+  width: 450px;
+  ::placeholder {
+    color: white;
+  }
+  &:focus {
+    border: 1px solid white;
+  }
+
+`;
