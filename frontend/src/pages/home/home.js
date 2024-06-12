@@ -18,14 +18,14 @@ const Home = () => {
           {user.role === 'admin' ? (
             <>
               <Title>Hello {user.name}</Title>
+              <HomeLink to="/admin">
+                  <Btn>All Users</Btn>
+                </HomeLink>
                 <HomeLink to="/solve-tasks">
                   <Btn>All Tasks</Btn>
                 </HomeLink>
                 <HomeLink to="/give-tasks">
                   <Btn>Give Tasks</Btn>
-                </HomeLink>
-                <HomeLink to="/admin">
-                  <Btn>All Users</Btn>
                 </HomeLink>
             </>
           ) : (

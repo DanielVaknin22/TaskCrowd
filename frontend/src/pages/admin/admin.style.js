@@ -22,8 +22,24 @@ export const UL = styled.ul`
     font-size: 16px;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     height: 40px;
+    width: 450px;
     &:hover{
         cursor: pointer;
         color:  rgba(255, 255, 255, 0.5);
+    }
+`;
+
+export const RemoveBtn = styled.button`
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    // padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 14px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    margin-left: 50px;
+    &:hover{
+        cursor: pointer;
+        background-color: #8080;
     }
 `;

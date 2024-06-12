@@ -11,6 +11,7 @@ const SolveTasksPage = () => {
     const [imageUrls, setImageUrls] = useState([]);
     const [loading, setLoading] = useState(false);
     const [userID, setUserID] = useState(null);
+    const [rolee, setRolee] = useState(null);
     const [formData, setFormData] = useState({
         labels: [],
       });
@@ -18,11 +19,15 @@ const SolveTasksPage = () => {
     useEffect(() => {
         const authData = localStorage.getItem('user');
         const userId = localStorage.getItem('userID'); 
+        const role = localStorage.getItem('role');
         if (authData) {
             setAuth(authData);
         }
         if (userId) {
             setUserID(userId);
+        }
+        if(role) {
+            setRolee(role);
         }
         fetchTasksForSolving();
     }, []);
@@ -74,6 +79,7 @@ const SolveTasksPage = () => {
                 console.log('Task solved successfully');
                 setFormData({ labels: [] });
                 setModalVisible(false);
+                fetchTasksForSolving();
             } else {
                 console.error('Failed to solve task:', response.statusText);
             }
@@ -134,7 +140,6 @@ const SolveTasksPage = () => {
             });
             if (response.ok) {
                 alert('Task deleted successfully');
-                // Remove the deleted task from the state
                 setTasks(tasks.filter(task => task._id !== taskId));
             } else {
                 throw new Error('Failed to delete task');
@@ -167,7 +172,11 @@ const SolveTasksPage = () => {
                                 <UserDetails><p>{task.userName}</p></UserDetails>
                                 <DateContainer><p>{formatDate(task.date)}</p></DateContainer>
                                 {task.userID === userID && (
-                                    <DeleteBtn onClick={() => handleDeleteTask(task._id)}> <TrashBtn></TrashBtn> Delete</DeleteBtn>
+                                    <DeleteBtn onClick={() => handleDeleteTask(task._id)}> <TrashBtn/> Delete</DeleteBtn>
+                                )}
+                                {rolee === 'admin' && (
+                                    <DeleteBtn onClick={() => handleDeleteTask(task._id)}>
+                                        <TrashBtn/> Delete </DeleteBtn>
                                 )}
                                 <p style={{ marginTop: '40px' }}>Subject: {task.subject}</p>
                                 <p>Type: {task.type}</p>

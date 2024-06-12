@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import RegistrationForm from './pages/register/registerForm';
 import Navbar from './pages/navbar/navbar';
 import LoginForm from './pages/Login/login';
@@ -49,8 +49,8 @@ const App = () => {
           <Route path="/give-tasks" element={ <CreateTaskPage /> } />
           <Route path="/solve-tasks" element={<SolveTasksPage />} />
           <Route path="/user/profile" element={<ProfilePage />} />
-          <Route path="/admin" element={isAuth && userRole === 'admin' ? <AdminPage /> : <Navigate to="/user/login" />} />
-          <Route path="/admin/user/:id" element={isAuth && userRole === 'admin' ? <UserProfile /> : <Navigate to="/user/login" />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin/user/:id" element={<UserProfile />} />
           <Route path="/" element={<LoginForm onLogin={handleLogin} />} />
         </Routes>
       </div>
