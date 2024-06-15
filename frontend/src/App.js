@@ -9,6 +9,7 @@ import SolveTasksPage from './pages/solveTask/solveTasks';
 import ProfilePage from './pages/profile';
 import AdminPage from './pages/admin/admin';
 import UserProfile from './pages/admin/userProfile';
+import StatisticsPage from './pages/admin/statistics';
 
 const App = () => {
   const [isAuth, setIsAuth] = useState(false);
@@ -52,6 +53,7 @@ const App = () => {
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/admin/user/:id" element={<UserProfile />} />
           <Route path="/" element={<LoginForm onLogin={handleLogin} />} />
+          <Route path="/statistics" element={<StatisticsPage />} />
         </Routes>
       </div>
     </Router>

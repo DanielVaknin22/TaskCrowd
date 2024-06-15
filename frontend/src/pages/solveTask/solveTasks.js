@@ -184,7 +184,7 @@ const SolveTasksPage = () => {
                                 <SolveButton onClick={() => {
                                     setSelectedTask(task);
                                     setModalVisible(true);
-                                }}><CommentImg></CommentImg>  Solve Task</SolveButton>
+                                }}><CommentImg/>  Solve Task</SolveButton>
                                 <br />
                             </Task>
                         </TaskContainer>

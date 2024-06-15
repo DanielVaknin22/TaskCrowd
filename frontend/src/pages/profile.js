@@ -73,7 +73,6 @@ const ProfilePage = () => {
             });
             if (response.ok) {
                 alert('Task deleted successfully');
-                // Remove the deleted task from the state
                 setGivenTasks(givenTasks.filter(task => task._id !== taskId));
             } else {
                 throw new Error('Failed to delete task');

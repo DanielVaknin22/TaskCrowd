@@ -27,6 +27,9 @@ const Home = () => {
                 <HomeLink to="/give-tasks">
                   <Btn>Give Tasks</Btn>
                 </HomeLink>
+                <HomeLink to="/statistics">
+                  <Btn>Statistics</Btn>
+                </HomeLink>
             </>
           ) : (
             <>
