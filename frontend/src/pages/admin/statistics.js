@@ -1,6 +1,8 @@
 // StatisticsPage.js
 import React, { useState, useEffect } from 'react';
 import { UserListContainer, UserItem, Popup, PopupContent, Btn } from './statistics.style';
+import jsPDF from 'jspdf';
+
 
 const StatisticsPage = () => {
   const [users, setUsers] = useState([]);
@@ -77,6 +79,14 @@ const fetchUserStatistics = (userId) => {
     setSelectedUser(null);
   };
 
+  const handleDownloadPdf = () => {
+    const doc = new jsPDF();
+    doc.text(`User: ${selectedUser.name}`, 10, 10);
+    doc.text(`Tasks Given: ${givenTasks.length}`, 10, 20);
+    doc.text(`Tasks Solved: ${solvedTasks.length}`, 10, 30);
+    doc.save(`${selectedUser.name}_statistics.pdf`);
+  };
+
   return (
     <UserListContainer>
       <h2>All Users</h2>
@@ -91,6 +101,7 @@ const fetchUserStatistics = (userId) => {
             <h3>{selectedUser.name}'s Statistics</h3>
             <p>Tasks Given: {givenTasks.length}</p>
             <p>Tasks Solved: {solvedTasks.length}</p>
+            <Btn onClick={handleDownloadPdf}>Download PDF</Btn>
             <Btn onClick={handleClosePopup}>Close</Btn>
           </PopupContent>
         </Popup>
