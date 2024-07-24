@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
 export const UserProfile = styled.div`
-text-align: left;
-margin-top: -25.33px;
+    text-align: left;
+    margin-top: -25.33px;
 `;
 
 export const HomeWrapper = styled.div`
@@ -113,38 +113,6 @@ export const DeleteBtn = styled.button`
     }
 `;
 
-export const TrashBtn = styled.image`
-    background-image: url(https://static.xx.fbcdn.net/rsrc.php/v3/yw/r/hL0ruuDyBXb.png);
-    background-position: 0px -340px;
-    background-size: 25px 361px;
-    width: 20px;
-    height: 20px;
-    background-repeat: no-repeat;
-    display: inline-block;
-    cursor: pointer;
-    background-color: var(--web-wash);
-`;
-
-export const SaveImg = styled.image`
-    background-image: url(https://static.xx.fbcdn.net/rsrc.php/v3/yl/r/hWIpyI8_P8x.png);
-    background-position: 0px -83px;
-    background-size: 41px 419px;
-    width: 20px;
-    height: 20px;
-    background-repeat: no-repeat;
-    display: inline-block;
-`;
-
-export const CommentImg = styled.image`
-background-image: url(https://static.xx.fbcdn.net/rsrc.php/v3/yg/r/3X2GtQkJp4p.png);
-background-position: 0px -592px;
-background-size: 25px 1469px;
-width: 20px;
-height: 20px;
-background-repeat: no-repeat;
-display: inline-block;
-`;
-
 export const Btn = styled.button`
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 8px;
@@ -174,11 +142,4 @@ export const TextInput = styled.input`
     border: 1px solid white;
   }
 
-`;
-
-export const PlusImg = styled.image`
-    font-size: 30px;
-    margin-top: -19px;
-    font-weight: bold;
-    margin-left: -10px;
 `;

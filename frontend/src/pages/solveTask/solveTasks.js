@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HomeWrapper, TaskContainer, UserDetails, DateContainer, Task, Popup, PopupContant,
-    SolveButton, DeleteBtn, TrashBtn, SaveImg, CommentImg, Btn, TextInput,
-PlusImg } from './solveTask.style';
+    SolveButton, DeleteBtn, Btn, TextInput, } from './solveTask.style';
 
 const SolveTasksPage = () => {
     const [tasks, setTasks] = useState([]);
@@ -12,9 +11,10 @@ const SolveTasksPage = () => {
     const [loading, setLoading] = useState(false);
     const [userID, setUserID] = useState(null);
     const [rolee, setRolee] = useState(null);
+    const [editModalVisible, setEditModalVisible] = useState(false);
     const [formData, setFormData] = useState({
         labels: [],
-      });
+    });
 
     useEffect(() => {
         const authData = localStorage.getItem('user');
@@ -26,7 +26,7 @@ const SolveTasksPage = () => {
         if (userId) {
             setUserID(userId);
         }
-        if(role) {
+        if (role) {
             setRolee(role);
         }
         fetchTasksForSolving();
@@ -50,8 +50,8 @@ const SolveTasksPage = () => {
 
     const handleAddLabel = () => {
         setFormData({
-          ...formData,
-          labels: [...formData.labels, '']
+            ...formData,
+            labels: [...formData.labels, '']
         });
     };
 
@@ -59,14 +59,16 @@ const SolveTasksPage = () => {
         const newLabels = [...formData.labels];
         newLabels[index] = value;
         setFormData({
-          ...formData,
-          labels: newLabels
+            ...formData,
+            labels: newLabels
         });
-      };
+    };
 
     const handleSolveTask = async (taskId, solutions, labels) => {
         try {
             const userId = localStorage.getItem('userID'); 
+            console.log('solutions:', solutions);
+            console.log('labels:', labels);
             const response = await fetch(`http://localhost:3000/task/${taskId}/${userId}/solve`, {
                 method: 'POST',
                 headers: {
@@ -104,17 +106,17 @@ const SolveTasksPage = () => {
 
     const fetchTaskImages = async (taskId) => {
         try {
-          const response = await fetch(`http://localhost:3000/task/get-images/${taskId}`);
-          if (!response.ok) {
-            throw new Error('Failed to fetch task images');
-          }
-          const data = await response.json();
-          const filepaths = data.filepaths.map(filepath => `http://localhost:3000/${filepath}`);
-          console.log(filepaths);
-          return filepaths;
+            const response = await fetch(`http://localhost:3000/task/get-images/${taskId}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch task images');
+            }
+            const data = await response.json();
+            const filepaths = data.filepaths.map(filepath => `http://localhost:3000/${filepath}`);
+            console.log(filepaths);
+            return filepaths;
         } catch (error) {
-          console.error('Error fetching task images:', error);
-          return [];
+            console.error('Error fetching task images:', error);
+            return [];
         }
     };
 
@@ -130,8 +132,6 @@ const SolveTasksPage = () => {
             images: files,
         });
     };
-   
-    
 
     const handleDeleteTask = async (taskId) => {
         try {
@@ -149,15 +149,88 @@ const SolveTasksPage = () => {
             alert('Failed to delete task');
         }
     };
+
+    const handleDeleteLabel = (index) => {
+        const newLabels = formData.labels.filter((_, i) => i !== index);
+        setFormData({
+            ...formData,
+            labels: newLabels
+        });
+    };
+    const handleDeleteImage = async (taskId, imageUrl, index) => {
+        try {
+            const normalizedImageUrl = imageUrl.replace(/\\/g, '/');
+            console.log('Attempting to delete image with taskId:', taskId, 'and imageUrl:', normalizedImageUrl);
     
-      
-      useEffect(() => {
-        if (selectedTask) {
-          fetchTaskImages(selectedTask._id)
-            .then(filepaths => setImageUrls(filepaths))
-            .catch(error => console.error('Error fetching task images:', error));
+            const response = await fetch('http://localhost:3000/task/delete-image', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ taskId: String(taskId), imageUrl: normalizedImageUrl }),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Failed to delete image: ${response.statusText}`);
+            }
+    
+            setImageUrls(prevState => prevState.filter((_, i) => i !== index));
+            alert('Image deleted successfully');
+        } catch (error) {
+            console.error('Error deleting image:', error);
+            alert('Failed to delete image');
         }
-      }, [selectedTask]);
+    };        
+  
+    const handleEditTask = async (taskId, updatedTaskData) => {
+        try {
+            const response = await fetch(`http://localhost:3000/task/update-task/${taskId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedTaskData),
+            });
+    
+            if (response.ok) {
+                console.log('Task updated successfully');
+                setEditModalVisible(false);
+                fetchTasksForSolving();
+            } else {
+                console.error('Failed to update task:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error updating task:', error);
+        }
+    };
+    
+
+    useEffect(() => {
+        if (selectedTask) {
+            fetchTaskImages(selectedTask._id)
+                .then(filepaths => setImageUrls(filepaths))
+                .catch(error => console.error('Error fetching task images:', error));
+        }
+    }, [selectedTask]);
+
+    const openEditModal = (task) => {
+        setSelectedTask(task);
+        setFormData({
+            labels: task.labels || [],
+            subject: task.subject,
+            numsolution: task.numsolution,
+            text: task.text || '',
+            images: [],
+        });
+        setEditModalVisible(true);
+    };
+
+    const handleFieldChange = (field, value) => {
+        setFormData({
+            ...formData,
+            [field]: value,
+        });
+    };
 
     return (
         <HomeWrapper>
@@ -171,12 +244,12 @@ const SolveTasksPage = () => {
                             <Task>
                                 <UserDetails><p>{task.userName}</p></UserDetails>
                                 <DateContainer><p>{formatDate(task.date)}</p></DateContainer>
-                                {task.userID === userID && (
-                                    <DeleteBtn onClick={() => handleDeleteTask(task._id)}> <TrashBtn/> Delete</DeleteBtn>
+                                {task.userID === userID && rolee !== 'admin' && (
+                                    <DeleteBtn onClick={() => handleDeleteTask(task._id)}>🗑️ Delete</DeleteBtn>
                                 )}
                                 {rolee === 'admin' && (
                                     <DeleteBtn onClick={() => handleDeleteTask(task._id)}>
-                                        <TrashBtn/> Delete </DeleteBtn>
+                                        🗑️ Delete </DeleteBtn>
                                 )}
                                 <p style={{ marginTop: '40px' }}>Subject: {task.subject}</p>
                                 <p>Type: {task.type}</p>
@@ -184,193 +257,299 @@ const SolveTasksPage = () => {
                                 <SolveButton onClick={() => {
                                     setSelectedTask(task);
                                     setModalVisible(true);
-                                }}><CommentImg/>  Solve Task</SolveButton>
+                                }}>💬  Solve Task</SolveButton>
+                                <SolveButton onClick={() => openEditModal(task)}>✏️ Edit Task</SolveButton>
+
                                 <br />
                             </Task>
                         </TaskContainer>
                     ))}
-                    {modalVisible && selectedTask && (
-    <Popup>
-        <PopupContant>
-            <h2>Solve Task</h2>
-            <p>User: {selectedTask.userName}</p>
-            <DateContainer><p>{formatDate(selectedTask.date)}</p></DateContainer>
-            <p>Subject: {selectedTask.subject}</p>
-            <p>Type: {selectedTask.type}</p>
-            <p>Number of solutions required: {selectedTask.numsolution}</p>
-            {selectedTask.type === 'Image classification' && (
-                <>
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        const formData = new FormData(e.target);
-                        const selectedLabels = imageUrls.map((url, index) => {
-                            const selectedLabel = formData.get(`selectedLabels-${index}`);
-                            return { image_url: url, label: selectedLabel };
-                        });
-                        const solutions = imageUrls.map((url, index) => selectedTask.images[index]);
-                        handleSolveTask(selectedTask._id, solutions, selectedLabels);
-                        setModalVisible(false); 
-                    }}>
-
-                {imageUrls.map((url, index) => (
-                    <div key={index}>
-                        <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />
-                    <div>
-                        {selectedTask.labels.map((label, labelIndex) => (
-                        <div key={labelIndex}>
-                            <input
-                            type="radio"
-                            id={`label-${index}-${labelIndex}`}
-                            name={`selectedLabels-${index}`}
-                            value={label}
-                            />
-                            <label htmlFor={`label-${index}-${labelIndex}`}>{label}</label>
-                        </div>
-                        ))}
-                    </div>
-                    </div>
-                ))}
-                
-                <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
-                <SolveButton type="submit"> <SaveImg></SaveImg> Save</SolveButton>
-                <SolveButton onClick={handleCloseModal}>Close</SolveButton>
-                </div>
-                </form>
-                </>
-                            )}
-                            {selectedTask.type === 'Text cataloging' && (
-                                <>
-                                <p>Text: {selectedTask.text}</p>
-                            <form onSubmit={(e) => {
-                                e.preventDefault();
-                                handleSolveTask(selectedTask._id, [], formData.labels);
-                                setModalVisible(false);
-                            }}>
-
-                            <Btn style={{width: '100px'}} type="button" onClick={handleAddLabel}> <PlusImg>+</PlusImg> Add Label</Btn>
-                                {formData.labels.map((label, index) => (
-                                <div key={index}>
-                                    <label htmlFor={`label-${index}`}>Label {index + 1}:</label>
-                                    <TextInput
-                                    type="text"
-                                    id={`label-${index}`}
-                                    value={label}
-                                    onChange={(e) => handleLabelChange(index, e.target.value)}
-                                    required
-                                    />
-                                </div>
-                                ))}
-                                <div>
-                                    <SolveButton type="submit"> <SaveImg /> Save</SolveButton>
-                                    <SolveButton onClick={handleCloseModal}>Close</SolveButton>
-                                </div>
-                            </form>
-                            </>
-                        )}
-
-                {selectedTask.type === 'Image cataloging' && (
-                    <>
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        const formData = new FormData(e.target);
-                        const selectedLabels = imageUrls.map((url, index) => {
-                            const selectedLabel = formData.get(`selectedLabels-${index}`);
-                            return { image_url: url, label: selectedLabel };
-                        });
-                        const solutions = imageUrls.map((url, index) => selectedTask.images[index]); 
-                        handleSolveTask(selectedTask._id, solutions, selectedLabels);
-                        setModalVisible(false); 
-                    }}>
-
-                {imageUrls.map((url, index) => (
-                    <div key={index}>
-                        <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />
-                                <div>
-                                <label htmlFor={`label-${index}`}>Label:</label>
-                                    <TextInput
-                                    type="text"
-                                    id={`label-${index}`}
-                                    value={formData.labels[index] || ''}
-                                    onChange={(e) => handleLabelChange(index, e.target.value)}
-                                    required
-                                    />
-                                </div>
-                                
-                </div>
-                ))}
-                <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
-                <SolveButton type="submit"> <SaveImg></SaveImg> Save</SolveButton>
-                <SolveButton onClick={handleCloseModal}>Close</SolveButton>
-                </div>
-                </form>
-                </>
-                )}
-
-                {selectedTask.type === 'Label classification' && (
-                                    <>
-                                    <form onSubmit={(e) => {
-                                        e.preventDefault();
-                                        const formData = new FormData(e.target);
-                                        const selectedLabels = imageUrls.map((url, index) => {
-                                            const selectedLabel = formData.get(`selectedLabels-${index}`);
-                                            return { image_url: url, label: selectedLabel };
-                                        });
-                                        const solutions = imageUrls.map((url, index) => selectedTask.images[index]); 
-                                        handleSolveTask(selectedTask._id, solutions, selectedLabels);
-                                        setModalVisible(false); 
-                                    }}>
-
-                                {imageUrls.map((url, index) => (
-                                    <div key={index}>
-                                        <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />
-                                                <div>
-                                                <label htmlFor={`label-${index}`}>Label:</label>
-                                                    <TextInput
-                                                    type="text"
-                                                    id={`label-${index}`}
-                                                    value={formData.labels[index] || ''}
-                                                    onChange={(e) => handleLabelChange(index, e.target.value)}
-                                                    required
-                                                    />
-                                                </div>
-                                                
-                                </div>
-                                ))}
-
-<div>
-                                                <p>Label: {selectedTask.label}</p>
-                                                
+                      {editModalVisible && selectedTask && (
+                        <Popup>
+                            <PopupContant>
+                                <h2>Edit Task</h2>
+                                <form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const updatedTaskData = {
+                                        subject: formData.subject,
+                                        numsolution: formData.numsolution,
+                                        labels: formData.labels,
+                                        images: formData.images,
+                                        text: formData.text,
+                                    };
+                                    handleEditTask(selectedTask._id, updatedTaskData);
+                                }}>
+                                    <div>
+                                        <label>Subject:</label>
+                                        <TextInput
+                                            type="text"
+                                            value={formData.subject}
+                                            onChange={(e) => handleFieldChange('subject', e.target.value)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label>Number of solutions:</label>
+                                        <TextInput
+                                            type="number"
+                                            value={formData.numsolution}
+                                            onChange={(e) => handleFieldChange('numsolution', e.target.value)}
+                                        />
+                                    </div>
+                                    {selectedTask.type === 'Image classification' && (
+                                        <>
+                                            <div>
+                                                <label>Labels:</label>
+                                                {formData.labels.map((label, index) => (
+                                                    <div key={index}>
+                                                        <TextInput
+                                                            type="text"
+                                                            value={label}
+                                                            onChange={(e) => handleLabelChange(index, e.target.value)}
+                                                        />
+                                                        <DeleteBtn onClick={() => handleDeleteLabel(index)}>Delete</DeleteBtn>
+                                                    </div>
+                                                ))}
+                                                <Btn onClick={handleAddLabel}>➕ Add Label</Btn>
                                             </div>
-                                 <div>
-                <label htmlFor="images">Upload Images: </label>
-                <TextInput
-                    type="file"
-                    id="images"
-                    name="images"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    multiple
-                    required
-                />
-            </div>
-                                <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
-                                <SolveButton type="submit"> <SaveImg></SaveImg> Save</SolveButton>
-                                <SolveButton onClick={handleCloseModal}>Close</SolveButton>
-                                </div>
+                                            <div>
+                                                <label>Images:</label>
+                                                {imageUrls.map((url, index) => (
+                                                    <div key={index}>
+                                            <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />
+                                                        <DeleteBtn onClick={() => handleDeleteImage(selectedTask._id, imageUrls._id, index)}>Delete</DeleteBtn>
+                                                    </div>
+                                                ))}
+                                                <input type="file" multiple onChange={handleImageChange} />
+                                            </div>
+                                        </>
+                                    )}
+                                    {selectedTask.type === 'Image cataloging' && (
+                                        <>
+                                            <div>
+                                                <label>Images:</label>
+                                                {imageUrls.map((url, index) => (
+                                                    <div key={index}>
+                                            <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />
+                                            <DeleteBtn onClick={() => handleDeleteImage(selectedTask._id, url, index)}>Delete</DeleteBtn>
+                                                    </div>
+                                                ))}
+                                                <input type="file" multiple onChange={handleImageChange} />
+                                            </div>
+                                        </>
+                                    )}
+                                    {selectedTask.type === 'Text cataloging' && (
+                                        <div>
+                                            <label>Text:</label>
+                                            <textarea
+                                                value={formData.text}
+                                                onChange={(e) => handleFieldChange('text', e.target.value)}
+                                            />
+                                        </div>
+                                    )}
+                                    {selectedTask.type === 'Label classification' && (
+                                        <div>
+                                            <label>Labels:</label>
+                                            {formData.labels.map((label, index) => (
+                                                <div key={index}>
+                                                    <TextInput
+                                                        type="text"
+                                                        value={label}
+                                                        onChange={(e) => handleLabelChange(index, e.target.value)}
+                                                    />
+                                                    <DeleteBtn onClick={() => handleDeleteLabel(index)}>Delete</DeleteBtn>
+                                                </div>
+                                            ))}
+                                            <Btn onClick={handleAddLabel}>➕ Add Label</Btn>
+                                        </div>
+                                    )}
+                                    <Btn type="submit">💾 Save</Btn>
+                                    <Btn type="button" onClick={() => setEditModalVisible(false)}>Cancel</Btn>
                                 </form>
-                                </>
-                )}
-                        </PopupContant>
-                    </Popup>
-                )}
+                            </PopupContant>
+                        </Popup>
+                    )}
+                    {modalVisible && selectedTask && (
+                        <Popup>
+                            <PopupContant>
+                                <h2>Solve Task</h2>
+                                <p>User: {selectedTask.userName}</p>
+                                <DateContainer><p>{formatDate(selectedTask.date)}</p></DateContainer>
+                                <p>Subject: {selectedTask.subject}</p>
+                                <p>Type: {selectedTask.type}</p>
+                                <p>Number of solutions required: {selectedTask.numsolution}</p>
+                                {selectedTask.type === 'Image classification' && (
+                                    <>
+                                        <form onSubmit={(e) => {
+                                            e.preventDefault();
+                                            const formData = new FormData(e.target);
+                                            const selectedLabels = imageUrls.map((url, index) => {
+                                                const selectedLabel = formData.get(`selectedLabels-${index}`);
+                                                return { image_url: url, label: selectedLabel };
+                                            });
+                                            const solutions = imageUrls.map((url, index) => selectedTask.images[index]);
+                                            handleSolveTask(selectedTask._id, solutions, selectedLabels);
+                                            setModalVisible(false); 
+                                        }}>
 
-                </>
-            ) : (
-                <h2>
-                </h2>
-            )}
-        </HomeWrapper>
-    );
-};
+                                    {imageUrls.map((url, index) => (
+                                        <div key={index}>
+                                            <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />
+                                        <div>
+                                            {selectedTask.labels.map((label, labelIndex) => (
+                                            <div key={labelIndex}>
+                                                <input
+                                                type="radio"
+                                                id={`label-${index}-${labelIndex}`}
+                                                name={`selectedLabels-${index}`}
+                                                value={label}
+                                                />
+                                                <label htmlFor={`label-${index}-${labelIndex}`}>{label}</label>
+                                            </div>
+                                            ))}
+                                        </div>
+                                        </div>
+                                    ))}
+                                    
+                                    <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
+                                    <SolveButton type="submit">💾 Save</SolveButton>
+                                    <SolveButton onClick={handleCloseModal}>Close</SolveButton>
+                                    </div>
+                                    </form>
+                                    </>
+                                                )}
+                                                {selectedTask.type === 'Text cataloging' && (
+                                                    <>
+                                                    <p>Text: {selectedTask.text}</p>
+                                                <form onSubmit={(e) => {
+                                                    e.preventDefault();
+                                                    handleSolveTask(selectedTask._id, [], formData.labels);
+                                                    setModalVisible(false);
+                                                }}>
 
-export default SolveTasksPage;
+                                                <Btn style={{width: '100px'}} type="button" onClick={handleAddLabel}>➕ Add Label</Btn>
+                                                    {formData.labels.map((label, index) => (
+                                                    <div key={index}>
+                                                        <label htmlFor={`label-${index}`}>Label {index + 1}:</label>
+                                                        <TextInput
+                                                        type="text"
+                                                        id={`label-${index}`}
+                                                        value={label}
+                                                        onChange={(e) => handleLabelChange(index, e.target.value)}
+                                                        required
+                                                        />
+                                                    </div>
+                                                    ))}
+                                                    <div>
+                                                        <SolveButton type="submit">💾 Save</SolveButton>
+                                                        <SolveButton onClick={handleCloseModal}>Close</SolveButton>
+                                                    </div>
+                                                </form>
+                                                </>
+                                            )}
+
+                                    {selectedTask.type === 'Image cataloging' && (
+                                        <>
+                                        <form onSubmit={(e) => {
+                                            e.preventDefault();
+                                            const formData = new FormData(e.target);
+                                            const selectedLabels = imageUrls.map((url, index) => {
+                                                const selectedLabel = formData.get(`selectedLabels-${index}`);
+                                                return { image_url: url, label: selectedLabel };
+                                            });
+                                            const solutions = imageUrls.map((url, index) => selectedTask.images[index]); 
+                                            handleSolveTask(selectedTask._id, solutions, selectedLabels);
+                                            setModalVisible(false); 
+                                        }}>
+
+                                    {imageUrls.map((url, index) => (
+                                        <div key={index}>
+                                            <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />
+                                                    <div>
+                                                    <label htmlFor={`label-${index}`}>Label:</label>
+                                                        <TextInput
+                                                        type="text"
+                                                        id={`label-${index}`}
+                                                        value={formData.labels[index] || ''}
+                                                        onChange={(e) => handleLabelChange(index, e.target.value)}
+                                                        required
+                                                        />
+                                                    </div>
+                                                    
+                                    </div>
+                                    ))}
+                                    <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
+                                    <SolveButton type="submit">💾 Save</SolveButton>
+                                    <SolveButton onClick={handleCloseModal}>Close</SolveButton>
+                                    </div>
+                                    </form>
+                                    </>
+                                    )}
+
+                                    {selectedTask.type === 'Label classification' && (
+                                                            <>
+                                                            <form onSubmit={(e) => {
+                                                                e.preventDefault();
+                                                                const formData = new FormData(e.target);
+                                                                const selectedLabels = imageUrls.map((url, index) => {
+                                                                    const selectedLabel = formData.get(`selectedLabels-${index}`);
+                                                                    return { image_url: url, label: selectedLabel };
+                                                                });
+                                                                const solutions = imageUrls.map((url, index) => selectedTask.images[index]); 
+                                                                handleSolveTask(selectedTask._id, solutions, selectedLabels);
+                                                                setModalVisible(false); 
+                                                            }}>
+
+                                                        {imageUrls.map((url, index) => (
+                                                            <div key={index}>
+                                                                <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />
+                                                                        <div>
+                                                                        <label htmlFor={`label-${index}`}>Label:</label>
+                                                                            <TextInput
+                                                                            type="text"
+                                                                            id={`label-${index}`}
+                                                                            value={formData.labels[index] || ''}
+                                                                            onChange={(e) => handleLabelChange(index, e.target.value)}
+                                                                            required
+                                                                            />
+                                                                        </div>
+                                                                        
+                                                        </div>
+                                                        ))}
+
+                <div>
+                                                                        <p>Label: {selectedTask.label}</p>
+                                                                        
+                                                                    </div>
+                                                         <div>
+                                    <label htmlFor="images">Upload Images: </label>
+                                    <TextInput
+                                        type="file"
+                                        id="images"
+                                        name="images"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        multiple
+                                        required
+                                    />
+                                </div>
+                                                        <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
+                                                        <SolveButton type="submit">💾 Save</SolveButton>
+                                                        <SolveButton onClick={handleCloseModal}>Close</SolveButton>
+                                                        </div>
+                                                        </form>
+                                                        </>
+                                    )}
+                            </PopupContant>
+                        </Popup>
+                    )}
+
+                    </>
+                ) : (
+                    <h2>
+                    </h2>
+                )}
+            </HomeWrapper>
+        );
+    };
+
+    export default SolveTasksPage;

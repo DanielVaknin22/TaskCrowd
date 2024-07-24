@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HomeWrapper, TaskContainer, UserProfile, DateContainer, Task, DeleteBtn, TrashBtn } from './solveTask/solveTask.style';
+import { HomeWrapper, TaskContainer, UserProfile, DateContainer, Task, DeleteBtn } from './solveTask/solveTask.style';
 
 const ProfilePage = () => {
     const [auth, setAuth] = useState(null);
@@ -100,7 +100,7 @@ const ProfilePage = () => {
                                 <p style={{ fontWeight: 'bold' }}>{auth.name}</p>
                                 <DateContainer><p>{formatDate(task.date)}</p></DateContainer>
                                 {task.userID === userID && (
-                                    <DeleteBtn onClick={() => handleDeleteTask(task._id)}> <TrashBtn></TrashBtn> Delete</DeleteBtn>
+                                    <DeleteBtn onClick={() => handleDeleteTask(task._id)}>🗑️ Delete</DeleteBtn>
                                 )}
                                 <p style={{ marginTop: '40px' }}>Subject: {task.subject}</p>
                                 <p>Type: {task.type}</p>

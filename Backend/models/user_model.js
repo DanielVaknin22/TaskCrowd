@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { type } = require("os");
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -22,6 +23,17 @@ const userSchema = new mongoose.Schema({
     tasksSolved: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Task'
+    }],
+    solutions: [{
+        task: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Task'
+        },
+        solution: mongoose.Schema.Types.Mixed,
+        image: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Image'
+        }
     }],
     role: {
         type: String,

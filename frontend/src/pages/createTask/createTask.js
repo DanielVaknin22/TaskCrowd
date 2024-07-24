@@ -3,6 +3,13 @@ import axios from 'axios';
 import { HomeWrapper, Fields, Btn, TextInput, TaskType, FormContainer, PlusImg, TextArea } from './createTask.style';
 import { useNavigate } from 'react-router-dom';
 
+const taskTypeDescriptions = {
+  'Image classification': 'In this task, the task solver classifies images into predefined categories.',
+  'Text cataloging': 'In this task, the task solver classifies text by adding a label in an open field.',
+  'Image cataloging': 'In this task, the task solver catalogs images by adding labels in an open field.',
+  'Label classification': 'In this task, you upload a certain label and the task solver uploads images suitable for the label.',
+};
+
 const CreateTaskPage = () => {
   const [formData, setFormData] = useState({
     subject: '',
@@ -151,6 +158,11 @@ const CreateTaskPage = () => {
 
           </TaskType>
         </Fields>
+        {formData.type && (
+          <Fields>
+            <p>{taskTypeDescriptions[formData.type]}</p>
+          </Fields>
+        )}
         <Fields>
           <label htmlFor="numsolution">Amount of required solutions: </label>
           <TextInput

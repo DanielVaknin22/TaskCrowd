@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HomeWrapper, TaskContainer, UserProfile, DateContainer, Task, DeleteBtn, TrashBtn } from '../solveTask/solveTask.style';
+import { HomeWrapper, TaskContainer, UserProfile, DateContainer, Task, DeleteBtn } from '../solveTask/solveTask.style';
 import { useParams } from 'react-router-dom';
 
 const ProfilePage = () => {
@@ -101,7 +101,7 @@ const ProfilePage = () => {
                                 <p style={{ fontWeight: 'bold' }}>{auth.name}</p>
                                 <DateContainer><p>{formatDate(task.date)}</p></DateContainer>
                                 {task.userID === id && (
-                                    <DeleteBtn onClick={() => handleDeleteTask(task._id)}> <TrashBtn></TrashBtn> Delete</DeleteBtn>
+                                    <DeleteBtn onClick={() => handleDeleteTask(task._id)}>🗑️ Delete</DeleteBtn>
                                 )}
                                 <p style={{ marginTop: '40px' }}>Subject: {task.subject}</p>
                                 <p>Type: {task.type}</p>

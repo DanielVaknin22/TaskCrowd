@@ -227,6 +227,8 @@ const uploadImages = async (req, res) => {
 const solveTask = async (req, res) => {
   try {
     const { solution, labels } = req.body;
+    console.log('Received solution:', solution);
+    console.log('Received labels:', labels);
     const taskId = req.params.taskId;
     const userId = req.params.userId;
 
@@ -235,53 +237,36 @@ const solveTask = async (req, res) => {
       return res.status(404).json({ error: 'Task not found' });
     }
 
+    let images = [];
     if (task.type === 'Text cataloging') {
       const uniqueLabels = [...new Set([...task.labels, ...labels])];
       task.labels = uniqueLabels;
-    }
-    
-    else if (task.type === 'Image classification'){
-      const images = await Image.find({ taskID: taskId });
+    } else if (task.type === 'Image classification' || task.type === 'Image cataloging') {
+      images = await Image.find({ taskID: taskId });
       if (!images || images.length === 0) {
         return res.status(404).json({ error: 'Images not found for the task' });
       }
-    
+
       console.log('Solutions:', solution);
       console.log('Images:', images);
-      
+
       for (let i = 0; i < solution.length && i < images.length; i++) {
         if (images[i]) {
-          console.log('Labels:', solution[i].label);
-      if (!Array.isArray(solution[i].label)) {
-        solution[i].label = [solution[i].label];
-      }
-      solution[i].label.forEach(label => {
-        images[i].labels.push(label);
-      });
-      
+          if (task.type === 'Image classification') {
+            if (!Array.isArray(solution[i].label)) {
+              solution[i].label = [solution[i].label];
+            }
+            solution[i].label.forEach(label => {
+              images[i].labels.push(label);
+            });
+          } else if (task.type === 'Image cataloging') {
+            images[i].labels = [...images[i].labels, labels[i]];
+          }
           await images[i].save();
         } else {
-          console.error('Image not found for solution:', solutions[i]);
+          console.error('Image not found for solution:', solution[i]);
         }
-      }    
-    }
-    else if (task.type === 'Image cataloging'){
-      const images = await Image.find({ taskID: taskId });
-      if (!images || images.length === 0) {
-        return res.status(404).json({ error: 'Images not found for the task' });
       }
-    
-      console.log('Solutions:', solution);
-      console.log('Images:', images);
-      
-      for (let i = 0; i < solution.length && i < images.length; i++) {
-        if (images[i]) {
-          images[i].labels = [...images[i].labels, labels[i]];
-          await images[i].save();
-        } else {
-          console.error('Image not found for solution:', solutions[i]);
-        }
-      }        
     }
 
     task.status = 'Solved';
@@ -292,6 +277,15 @@ const solveTask = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     user.tasksSolved.push(task._id);
+    user.solutions = user.solutions || [];
+
+    for (let i = 0; i < solution.length && i < images.length; i++) {
+      user.solutions.push({
+        task: task._id,
+        solution: solution[i].label || labels[i],
+        image: images[i]._id
+      });
+    }
     await user.save();
 
     res.json({ message: 'Task solved successfully' });
@@ -300,6 +294,7 @@ const solveTask = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 const deleteTask = async (req, res) => {
   const { user } = req;
@@ -325,6 +320,55 @@ const deleteTask = async (req, res) => {
   }
 };
 
+const updateTask = async (req, res) => {
+  try {
+      const taskId = req.params.taskId;
+      console.log('Task ID:', taskId); // Add this line to debug
+      const { subject, numsolution, labels, images, text } = req.body;
+
+      const updatedTask = await Task.findByIdAndUpdate(
+          taskId,
+          { subject, numsolution, labels, images, text },
+          { new: true }
+      );
+
+      if (!updatedTask) {
+          return res.status(404).json({ message: 'Task not found' });
+      }
+
+      res.json(updatedTask);
+  } catch (error) {
+      console.error('Error updating task:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const deleteImage = async (req, res) => {
+    const { taskId, imageUrl } = req.body;
+
+    // Log the incoming data
+    console.log('Delete request received for taskId:', taskId, 'and imageUrl:', imageUrl);
+
+    // Normalize the path to use forward slashes
+    const normalizedImageUrl = imageUrl.replace(/\\/g, '/');
+
+    try {
+        const filePath = normalizedImageUrl.replace('http://localhost:3000/', '');
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                console.error('Error deleting file:', err);
+                return res.status(404).send('Image not found');
+            }
+
+            res.status(200).send('Image deleted successfully');
+        });
+    } catch (error) {
+        console.error('Error processing delete request:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+
 module.exports = { createTask, getTasks, uploadImages,
   getTaskImages, getTasksSolved, solveTask, getTasksGiven, 
-  deleteTask, getTasksForLabeling };
+  deleteTask, getTasksForLabeling, updateTask, deleteImage, };

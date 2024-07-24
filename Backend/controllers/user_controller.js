@@ -1,5 +1,5 @@
 const User = require("../models/user_model");
-const lecturerEmails = ['lecturer@ac.sce.ac.il','hadasda1@ac.sce.ac.il', 'liorar1@ac.sce.ac.il', 'tammarm@gmail.com', 'marinak@sce.ac.il', 'eliav.menachi@gmail.com'];
+const lecturerEmails = ['lecturer@ac.sce.ac.il','hadasda1@ac.sce.ac.il', 'liorar1@ac.sce.ac.il', 'tammash@ac.sce.ac.il', 'marinak@ac.sce.ac.il', 'eliav.menachi@gmail.com'];
 
 const getUsers = async (req, res) => {
   console.log("user get");

@@ -10,5 +10,8 @@ router.get('/get-solved-tasks/:userId', TaskController.getTasksSolved);
 router.post('/upload-image', TaskController.uploadImages);
 router.get('/get-images/:taskId', TaskController.getTaskImages);
 router.delete('/delete-task/:taskId', TaskController.deleteTask);
-  
+router.put('/update-task/:taskId', TaskController.updateTask);
+router.delete('/delete-image', TaskController.deleteImage);
+
+
 module.exports = router;
