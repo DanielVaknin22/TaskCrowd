@@ -233,9 +233,9 @@ const CreateTaskPage = () => {
          <Fields>
          <label htmlFor="label">Label: </label>
          <TextInput
-           id="label"
-           name="label"
-           value={formData.label}
+           type="text"
+           id={'label'}
+           value={formData.labels[0] || ''}
            onChange={(e) => handleLabelChange(0, e.target.value)}
            required
          ></TextInput>

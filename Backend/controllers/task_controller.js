@@ -164,8 +164,17 @@ const createTask = async (req, res) => {
         return await newImage.save();
       }));
       newTask.images = savedImages.map(image => image._id);
+    } else if(type === 'Label classification') {
+      newTask = new Task({
+        userID,
+        subject,
+        type,
+        numsolution,
+        labels,
+      });
+      const savedTask = await newTask.save();
     }
-     else {
+    else {
       newTask = new Task({ userID, subject, type, numsolution });
     }
 
@@ -267,6 +276,28 @@ const solveTask = async (req, res) => {
           console.error('Image not found for solution:', solution[i]);
         }
       }
+    } else if (task.type === 'Label classification') {
+      const savedImages = await Promise.all(images.map(async (base64ImageData) => {
+        const base64Image = base64ImageData.split(';base64,').pop();
+        const filename = `image_${Date.now()}.jpg`; 
+        const directoryPath = path.join(__dirname, '..', 'uploads');
+        const filePath = path.join('uploads', filename);
+        if (!fs.existsSync(directoryPath)) {
+          fs.mkdirSync(directoryPath, { recursive: true });
+        }
+
+        await fs.promises.writeFile(filePath, base64Image, { encoding: 'base64' });
+        
+        const newImage = new Image({
+          taskID: task._id,
+          userID,
+          filename,
+          filePath,
+        });
+        return await newImage.save();
+      }));
+      const imageIDs = savedImages.map(image => image._id);
+        task.images = [...(task.images || []), ...imageIDs];
     }
 
     task.status = 'Solved';

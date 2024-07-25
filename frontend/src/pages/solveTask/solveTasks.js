@@ -14,6 +14,7 @@ const SolveTasksPage = () => {
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [formData, setFormData] = useState({
         labels: [],
+        images: [],
     });
 
     useEffect(() => {
@@ -79,6 +80,7 @@ const SolveTasksPage = () => {
             if (response.ok) {
                 console.log('labels:', labels);
                 console.log('Task solved successfully');
+                alert('Task solved successfully');
                 setFormData({ labels: [] });
                 setModalVisible(false);
                 fetchTasksForSolving();
@@ -127,10 +129,12 @@ const SolveTasksPage = () => {
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
+        const urls = files.map(file => URL.createObjectURL(file));
         setFormData({
             ...formData,
             images: files,
         });
+        setImageUrls(urls);
     };
 
     const handleDeleteTask = async (taskId) => {
@@ -194,6 +198,7 @@ const SolveTasksPage = () => {
     
             if (response.ok) {
                 console.log('Task updated successfully');
+                alert('Task updated successfully');
                 setEditModalVisible(false);
                 fetchTasksForSolving();
             } else {
@@ -257,9 +262,10 @@ const SolveTasksPage = () => {
                                 <SolveButton onClick={() => {
                                     setSelectedTask(task);
                                     setModalVisible(true);
-                                }}>💬  Solve Task</SolveButton>
+                                }}>💬 Solve Task</SolveButton>
+                                {task.userID === userID && (
                                 <SolveButton onClick={() => openEditModal(task)}>✏️ Edit Task</SolveButton>
-
+                                )}
                                 <br />
                             </Task>
                         </TaskContainer>
@@ -498,26 +504,8 @@ const SolveTasksPage = () => {
                                                                 handleSolveTask(selectedTask._id, solutions, selectedLabels);
                                                                 setModalVisible(false); 
                                                             }}>
-
-                                                        {imageUrls.map((url, index) => (
-                                                            <div key={index}>
-                                                                <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />
-                                                                        <div>
-                                                                        <label htmlFor={`label-${index}`}>Label:</label>
-                                                                            <TextInput
-                                                                            type="text"
-                                                                            id={`label-${index}`}
-                                                                            value={formData.labels[index] || ''}
-                                                                            onChange={(e) => handleLabelChange(index, e.target.value)}
-                                                                            required
-                                                                            />
-                                                                        </div>
-                                                                        
-                                                        </div>
-                                                        ))}
-
                 <div>
-                                                                        <p>Label: {selectedTask.label}</p>
+                                                                        <p>Label: {selectedTask.labels}</p>
                                                                         
                                                                     </div>
                                                          <div>
@@ -532,6 +520,11 @@ const SolveTasksPage = () => {
                                         required
                                     />
                                 </div>
+                                {imageUrls.map((url, index) => (
+                                                            <div key={index}>
+                                                                <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />                                                                        
+                                                        </div>
+                                                        ))}
                                                         <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
                                                         <SolveButton type="submit">💾 Save</SolveButton>
                                                         <SolveButton onClick={handleCloseModal}>Close</SolveButton>
