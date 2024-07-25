@@ -1,8 +1,7 @@
-// StatisticsPage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { UserListContainer, UserItem, Popup, PopupContent, Btn } from './statistics.style';
 import jsPDF from 'jspdf';
-
+import { CSVLink } from 'react-csv';
 
 const StatisticsPage = () => {
   const [users, setUsers] = useState([]);
@@ -10,6 +9,7 @@ const StatisticsPage = () => {
   const [popupVisible, setPopupVisible] = useState(false);
   const [givenTasks, setGivenTasks] = useState([]);
   const [solvedTasks, setSolvedTasks] = useState([]);
+  const [csvData, setCsvData] = useState([]);
 
   useEffect(() => {
     fetchUsers();
@@ -17,7 +17,7 @@ const StatisticsPage = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:3000/user'); 
+      const response = await fetch('http://localhost:3000/user');
       const data = await response.json();
       setUsers(data);
     } catch (error) {
@@ -25,48 +25,44 @@ const StatisticsPage = () => {
     }
   };
 
-//   const fetchUserStatistics = async (userId) => {
-//     try {
-//       const response = await fetch(`http://localhost:3000/users/${userId}/statistics`); 
-//       const data = await response.json();
-//       setStatistics(data);
-//     } catch (error) {
-//       console.error('Error fetching user statistics:', error);
-//     }
-//   };
-
   const fetchGivenTasks = async (userId) => {
     try {
-        const response = await fetch(`http://localhost:3000/task/get-tasks/${userId}`);
-        if (response.ok) {
-            const tasks = await response.json();
-            setGivenTasks(tasks);
-        } else {
-            console.error('Failed to fetch given tasks:', response.statusText);
-        }
+      const response = await fetch(`http://localhost:3000/task/get-tasks/${userId}`);
+      if (response.ok) {
+        const tasks = await response.json();
+        return tasks.length;
+      } else {
+        console.error('Failed to fetch given tasks:', response.statusText);
+        return 0;
+      }
     } catch (error) {
-        console.error('Error fetching given tasks:', error);
+      console.error('Error fetching given tasks:', error);
+      return 0;
     }
-};
+  };
 
-const fetchSolvedTasks = async (userId) => {
+  const fetchSolvedTasks = async (userId) => {
     try {
-        const response = await fetch(`http://localhost:3000/task/get-solved-tasks/${userId}`);
-        if (response.ok) {
-            const data = await response.json();
-            setSolvedTasks(data);
-        } else {
-            console.error('Failed to fetch tasks:', response.statusText);
-        }
+      const response = await fetch(`http://localhost:3000/task/get-solved-tasks/${userId}`);
+      if (response.ok) {
+        const tasks = await response.json();
+        return tasks.length;
+      } else {
+        console.error('Failed to fetch solved tasks:', response.statusText);
+        return 0;
+      }
     } catch (error) {
-        console.error('Error fetching tasks:', error);
+      console.error('Error fetching solved tasks:', error);
+      return 0;
     }
-};
+  };
 
-const fetchUserStatistics = (userId) => {
-    fetchSolvedTasks(userId);
-    fetchGivenTasks(userId);
-}
+  const fetchUserStatistics = async (userId) => {
+    const givenTasksCount = await fetchGivenTasks(userId);
+    const solvedTasksCount = await fetchSolvedTasks(userId);
+    setGivenTasks(new Array(givenTasksCount).fill({})); // Dummy data for length display
+    setSolvedTasks(new Array(solvedTasksCount).fill({})); // Dummy data for length display
+  };
 
   const handleUserClick = (user) => {
     setSelectedUser(user);
@@ -87,9 +83,30 @@ const fetchUserStatistics = (userId) => {
     doc.save(`${selectedUser.name}_statistics.pdf`);
   };
 
+  const generateCsvData = useCallback(async () => {
+    const updatedUsers = await Promise.all(users.map(async (user) => {
+      const givenTasksCount = await fetchGivenTasks(user._id);
+      const solvedTasksCount = await fetchSolvedTasks(user._id);
+      return {
+        name: user.name,
+        email: user.email,
+        tasksGiven: givenTasksCount,
+        tasksSolved: solvedTasksCount
+      };
+    }));
+    setCsvData(updatedUsers);
+  }, [users]);
+
+  useEffect(() => {
+    generateCsvData();
+  }, [generateCsvData]);
+
   return (
     <UserListContainer>
       <h2>All Users</h2>
+      <CSVLink data={csvData} filename={"users_statistics.csv"}>
+        <Btn>Download CSV</Btn>
+      </CSVLink>
       {users.map(user => (
         <UserItem key={user._id} onClick={() => handleUserClick(user)}>
           {user.name} - {user.email}
