@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HomeWrapper, TaskContainer, UserDetails, DateContainer, Task, Popup, PopupContant,
-    SolveButton, DeleteBtn, Btn, TextInput, } from './solveTask.style';
+    SolveButton, DeleteBtn, Btn, TextInput, NextBtn } from './solveTask.style';
 
 const SolveTasksPage = () => {
     const [tasks, setTasks] = useState([]);
@@ -16,6 +16,7 @@ const SolveTasksPage = () => {
         labels: [],
         images: [],
     });
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     useEffect(() => {
         const authData = localStorage.getItem('user');
@@ -237,6 +238,14 @@ const SolveTasksPage = () => {
         });
     };
 
+    const handlePrevImage = () => {
+        setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? imageUrls.length - 1 : prevIndex - 1));
+    };
+
+    const handleNextImage = () => {
+        setCurrentImageIndex((prevIndex) => (prevIndex === imageUrls.length - 1 ? 0 : prevIndex + 1));
+    };
+
     return (
         <HomeWrapper>
             {auth ? (
@@ -263,7 +272,10 @@ const SolveTasksPage = () => {
                                     setSelectedTask(task);
                                     setModalVisible(true);
                                 }}>💬 Solve Task</SolveButton>
-                                {task.userID === userID && (
+                                {task.userID === userID && rolee !== 'admin' && (
+                                <SolveButton onClick={() => openEditModal(task)}>✏️ Edit Task</SolveButton>
+                                )}
+                                {rolee === 'admin' && (
                                 <SolveButton onClick={() => openEditModal(task)}>✏️ Edit Task</SolveButton>
                                 )}
                                 <br />
@@ -384,45 +396,50 @@ const SolveTasksPage = () => {
                                 <p>Type: {selectedTask.type}</p>
                                 <p>Number of solutions required: {selectedTask.numsolution}</p>
                                 {selectedTask.type === 'Image classification' && (
-                                    <>
-                                        <form onSubmit={(e) => {
-                                            e.preventDefault();
-                                            const formData = new FormData(e.target);
-                                            const selectedLabels = imageUrls.map((url, index) => {
-                                                const selectedLabel = formData.get(`selectedLabels-${index}`);
-                                                return { image_url: url, label: selectedLabel };
-                                            });
-                                            const solutions = imageUrls.map((url, index) => selectedTask.images[index]);
-                                            handleSolveTask(selectedTask._id, solutions, selectedLabels);
-                                            setModalVisible(false); 
-                                        }}>
-
-                                    {imageUrls.map((url, index) => (
-                                        <div key={index}>
-                                            <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />
-                                        <div>
-                                            {selectedTask.labels.map((label, labelIndex) => (
-                                            <div key={labelIndex}>
-                                                <input
-                                                type="radio"
-                                                id={`label-${index}-${labelIndex}`}
-                                                name={`selectedLabels-${index}`}
-                                                value={label}
-                                                />
-                                                <label htmlFor={`label-${index}-${labelIndex}`}>{label}</label>
-                                            </div>
-                                            ))}
-                                        </div>
-                                        </div>
-                                    ))}
-                                    
-                                    <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
-                                    <SolveButton type="submit">💾 Save</SolveButton>
-                                    <SolveButton onClick={handleCloseModal}>Close</SolveButton>
+    <>
+        {imageUrls.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center' }}>                
+                <NextBtn onClick={handlePrevImage}>←</NextBtn>
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const selectedLabels = imageUrls.map((url, index) => {
+                        const selectedLabel = formData.get(`selectedLabels-${index}`);
+                        return { image_url: url, label: selectedLabel };
+                    });
+                    const solutions = imageUrls.map((url, index) => selectedTask.images[index]);
+                    handleSolveTask(selectedTask._id, solutions, selectedLabels);
+                    setModalVisible(false); 
+                }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    {imageUrls.map((url, index) => (
+                        <div key={index} style={{ display: index === currentImageIndex ? 'block' : 'none' }}>
+                            <img style={{ width: '200px', height: 'auto', margin: '0 20px' }} src={url} alt={`${index}`} />
+                            <div>
+                                {selectedTask.labels.map((label, labelIndex) => (
+                                    <div key={labelIndex}>
+                                        <input
+                                            type="radio"
+                                            id={`label-${index}-${labelIndex}`}
+                                            name={`selectedLabels-${index}`}
+                                            value={label}
+                                        />
+                                        <label htmlFor={`label-${index}-${labelIndex}`}>{label}</label>
                                     </div>
-                                    </form>
-                                    </>
-                                                )}
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                    <div style={{ display: 'flex', flexDirection: 'column', marginTop: '20px' }}>
+                        <SolveButton type="submit">💾 Save</SolveButton>
+                        <SolveButton onClick={handleCloseModal}>Close</SolveButton>
+                    </div>
+                </form>
+                <NextBtn onClick={handleNextImage}>→</NextBtn>
+            </div>
+        )}
+    </>
+)}
+
                                                 {selectedTask.type === 'Text cataloging' && (
                                                     <>
                                                     <p>Text: {selectedTask.text}</p>
@@ -453,43 +470,49 @@ const SolveTasksPage = () => {
                                                 </>
                                             )}
 
-                                    {selectedTask.type === 'Image cataloging' && (
-                                        <>
-                                        <form onSubmit={(e) => {
-                                            e.preventDefault();
-                                            const formData = new FormData(e.target);
-                                            const selectedLabels = imageUrls.map((url, index) => {
-                                                const selectedLabel = formData.get(`selectedLabels-${index}`);
-                                                return { image_url: url, label: selectedLabel };
-                                            });
-                                            const solutions = imageUrls.map((url, index) => selectedTask.images[index]); 
-                                            handleSolveTask(selectedTask._id, solutions, selectedLabels);
-                                            setModalVisible(false); 
-                                        }}>
-
-                                    {imageUrls.map((url, index) => (
-                                        <div key={index}>
-                                            <img style={{display: 'flex', width: '200px', height: 'auto'}} src={url} alt={`${index}`} />
-                                                    <div>
-                                                    <label htmlFor={`label-${index}`}>Label:</label>
-                                                        <TextInput
-                                                        type="text"
-                                                        id={`label-${index}`}
-                                                        value={formData.labels[index] || ''}
-                                                        onChange={(e) => handleLabelChange(index, e.target.value)}
-                                                        required
-                                                        />
-                                                    </div>
-                                                    
-                                    </div>
-                                    ))}
-                                    <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
-                                    <SolveButton type="submit">💾 Save</SolveButton>
-                                    <SolveButton onClick={handleCloseModal}>Close</SolveButton>
-                                    </div>
-                                    </form>
-                                    </>
-                                    )}
+{selectedTask.type === 'Image cataloging' && (
+    <>
+        {imageUrls.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <NextBtn onClick={handlePrevImage}>←</NextBtn>
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.target);
+                        const selectedLabels = imageUrls.map((url, index) => {
+                            const selectedLabel = formData.get(`label-${index}`);
+                            return { image_url: url, label: selectedLabel };
+                        });
+                        const solutions = imageUrls.map((url, index) => selectedTask.images[index]);
+                        handleSolveTask(selectedTask._id, solutions, selectedLabels);
+                        setModalVisible(false);
+                    }}
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+                >
+                    {imageUrls.map((url, index) => (
+                        <div key={index} style={{ display: index === currentImageIndex ? 'block' : 'none' }}>
+                            <img style={{ width: '200px', height: 'auto', margin: '0 20px' }} src={url} alt={`${index}`} />
+                            <div>
+                                <label htmlFor={`label-${index}`}>Label:</label>
+                                <TextInput
+                                    type="text"
+                                    id={`label-${index}`}
+                                    name={`label-${index}`}
+                                    required
+                                />
+                            </div>
+                        </div>
+                    ))}
+                    <div style={{ display: 'flex', flexDirection: 'column', marginTop: '20px' }}>
+                        <SolveButton type="submit">💾 Save</SolveButton>
+                        <SolveButton onClick={handleCloseModal}>Close</SolveButton>
+                    </div>
+                </form>
+                <NextBtn onClick={handleNextImage}>→</NextBtn>
+            </div>
+        )}
+    </>
+)}
 
                                     {selectedTask.type === 'Label classification' && (
                                                             <>
