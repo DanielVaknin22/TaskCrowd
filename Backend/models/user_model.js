@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        index: { unique: false, dropDups: true },
+        // index: { unique: false, dropDups: true },
         required: true,
     },
     tasks: [{
@@ -40,6 +40,11 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
+    idNumber: {
+        type: String,
+        unique: true,
+        required: true,
+      },
 });
 
 module.exports = mongoose.model("User", userSchema);

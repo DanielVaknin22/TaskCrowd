@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Title, VerticalContainer, LoginContainer,
   InputLbl, TextInput, SubmitBtn
 } from './register.style';
@@ -7,8 +8,11 @@ const RegistrationForm = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: ''
+    password: '',
+    idNumber: ''
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -34,7 +38,8 @@ const RegistrationForm = () => {
       }
       const data = await response.json();
       alert(data.message);
-      setFormData({ name: '', email: '', password: '' });
+      setFormData({ name: '', email: '', password: '', idNumber: '' });
+      navigate('/user/login');
     } catch (error) {
       console.error(error);
       alert('Failed to register user');
@@ -64,6 +69,17 @@ const RegistrationForm = () => {
             id="email"
             name="email"
             value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <InputLbl htmlFor="idNumber">ID Number:</InputLbl>
+          <TextInput
+            type="text"
+            id="idNumber"
+            name="idNumber"
+            value={formData.idNumber}
             onChange={handleChange}
             required
           />

@@ -57,16 +57,26 @@ const deleteUsers = async (req, res) => {
 };
 
 const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, idNumber } = req.body;
   const emailPattern = /^[a-zA-Z0-9._-]+@ac\.sce\.ac\.il$/;
+  const idNumberPattern = /^\d{9}$/;
+
   if (!emailPattern.test(email)) {
     return res.status(400).json({ error: 'Invalid email format. Must be in the form _____@ac.sce.ac.il' });
   }
+  if (!idNumberPattern.test(idNumber)) {
+    return res.status(400).json({ error: 'Invalid ID number format. Must be a 9-digit number' });
+  }
+  if (!idNumber || idNumber.trim() === '') {
+    return res.status(400).json({ error: 'ID Number is required' });
+  }
+
   try {
     const role = lecturerEmails.includes(email) ? 'admin' : 'user';
-    const user = await User.create({ name, email, password, role });
+    const user = await User.create({ name, email, password, idNumber, role });
     res.status(201).json({ message: 'User registered successfully', user });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error registering user' });
   }
 };
