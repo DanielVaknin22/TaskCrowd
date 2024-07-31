@@ -117,6 +117,16 @@ const ProfilePage = () => {
                                 <p>Subject: {task.subject}</p>
                                 <p>Type: {task.type}</p>
                                 <p>Number of solutions are required: {task.numsolution}</p>
+                                 <div>
+                                    <h4>Solutions:</h4>
+                                    {task.solutions && task.solutions.length > 0 ? (
+                                        task.solutions.map((solution, index) => (
+                                            <p key={index}>{solution}</p>
+                                        ))
+                                    ) : (
+                                        <p>No solutions available</p>
+                                    )}
+                                </div>
                                 </Task>                        ))}
                     </TaskContainer>
                 </div>
