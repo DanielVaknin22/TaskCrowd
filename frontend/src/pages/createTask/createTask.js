@@ -25,7 +25,7 @@ const CreateTaskPage = () => {
       formDataUpload.append('images', image);
     });
     
-    axios.post('http://localhost:3000/upload-image', formDataUpload )
+    axios.post('http://185.159.109.243:3001/upload-image', formDataUpload )
     .then( res => {})
     .catch(er => console.log(er))
   }
@@ -98,7 +98,7 @@ const CreateTaskPage = () => {
     };
     console.log(formDataWithUserID);
     try {
-      const response = await fetch('http://localhost:3000/task/create-tasks', {
+      const response = await fetch('http://185.159.109.243:3001/task/create-tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

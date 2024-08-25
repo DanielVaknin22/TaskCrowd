@@ -9,7 +9,7 @@ const AdminPage = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('http://localhost:3000/user');
+        const response = await fetch('http://185.159.109.243:3001/user');
         const data = await response.json();
         setUsers(data);
       } catch (error) {
@@ -27,7 +27,7 @@ const AdminPage = () => {
   const handleRemoveUser = async (userId) => {
     if (window.confirm('Are you sure you want to remove this user?')) {
       try {
-        const response = await fetch(`http://localhost:3000/user/${userId}`, {
+        const response = await fetch(`http://185.159.109.243:3001/user/${userId}`, {
           method: 'DELETE',
         });
         if (response.ok) {

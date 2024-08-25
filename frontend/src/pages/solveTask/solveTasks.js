@@ -37,12 +37,13 @@ const SolveTasksPage = () => {
     const fetchTasksForSolving = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:3000/task/solve-tasks');
+            const response = await fetch('http://185.159.109.243:3001/task/solve-tasks');
             if (!response.ok) {
                 throw new Error('Failed to fetch tasks');
             }
             const data = await response.json();
-            setTasks(data);
+            const availableTasks = data.filter(task => task.numsolution > (task.solutions ? task.solutions.length : 0));
+            setTasks(availableTasks);
         } catch (error) {
             console.error('Error fetching tasks:', error);
         } finally {
@@ -71,7 +72,7 @@ const SolveTasksPage = () => {
             const userId = localStorage.getItem('userID'); 
             console.log('solutions:', solutions);
             console.log('labels:', labels);
-            const response = await fetch(`http://localhost:3000/task/${taskId}/${userId}/solve`, {
+            const response = await fetch(`http://185.159.109.243:3001/task/${taskId}/${userId}/solve`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -109,12 +110,12 @@ const SolveTasksPage = () => {
 
     const fetchTaskImages = async (taskId) => {
         try {
-            const response = await fetch(`http://localhost:3000/task/get-images/${taskId}`);
+            const response = await fetch(`http://185.159.109.243:3001/task/get-images/${taskId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch task images');
             }
             const data = await response.json();
-            const filepaths = data.filepaths.map(filepath => `http://localhost:3000/${filepath}`);
+            const filepaths = data.filepaths.map(filepath => `http://185.159.109.243:3001/${filepath}`);
             console.log(filepaths);
             return filepaths;
         } catch (error) {
@@ -140,7 +141,7 @@ const SolveTasksPage = () => {
 
     const handleDeleteTask = async (taskId) => {
         try {
-            const response = await fetch(`http://localhost:3000/task/delete-task/${taskId}`, {
+            const response = await fetch(`http://185.159.109.243:3001/task/delete-task/${taskId}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
@@ -167,7 +168,7 @@ const SolveTasksPage = () => {
             const normalizedImageUrl = imageUrl.replace(/\\/g, '/');
             console.log('Attempting to delete image with taskId:', taskId, 'and imageUrl:', normalizedImageUrl);
     
-            const response = await fetch('http://localhost:3000/task/delete-image', {
+            const response = await fetch('http://185.159.109.243:3001/task/delete-image', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -189,7 +190,7 @@ const SolveTasksPage = () => {
   
     const handleEditTask = async (taskId, updatedTaskData) => {
         try {
-            const response = await fetch(`http://localhost:3000/task/update-task/${taskId}`, {
+            const response = await fetch(`http://185.159.109.243:3001/task/update-task/${taskId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -413,6 +414,9 @@ const SolveTasksPage = () => {
                 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     {imageUrls.map((url, index) => (
                         <div key={index} style={{ display: index === currentImageIndex ? 'block' : 'none' }}>
+                            <div style={{ marginTop: '10px' }}>
+                                   {index + 1} of {imageUrls.length}
+                            </div>
                             <img style={{ width: '200px', height: 'auto', margin: '0 20px' }} src={url} alt={`${index}`} />
                             <div>
                                 {selectedTask.labels.map((label, labelIndex) => (
@@ -430,8 +434,8 @@ const SolveTasksPage = () => {
                         </div>
                     ))}
                     <div style={{ display: 'flex', flexDirection: 'column', marginTop: '20px' }}>
-                        <SolveButton type="submit">💾 Save</SolveButton>
-                        <SolveButton onClick={handleCloseModal}>Close</SolveButton>
+                        <SolveButton type="submit">💾 Complete</SolveButton>
+                        <SolveButton onClick={handleCloseModal}>Close the window</SolveButton>
                     </div>
                 </form>
                 <NextBtn onClick={handleNextImage}>→</NextBtn>
@@ -463,8 +467,8 @@ const SolveTasksPage = () => {
                                                     </div>
                                                     ))}
                                                     <div>
-                                                        <SolveButton type="submit">💾 Save</SolveButton>
-                                                        <SolveButton onClick={handleCloseModal}>Close</SolveButton>
+                                                        <SolveButton type="submit">💾 Complete</SolveButton>
+                                                        <SolveButton onClick={handleCloseModal}>Close the window</SolveButton>
                                                     </div>
                                                 </form>
                                                 </>
@@ -491,6 +495,9 @@ const SolveTasksPage = () => {
                 >
                     {imageUrls.map((url, index) => (
                         <div key={index} style={{ display: index === currentImageIndex ? 'block' : 'none' }}>
+                            <div style={{ marginTop: '10px' }}>
+                                   {index + 1} of {imageUrls.length}
+                            </div>
                             <img style={{ width: '200px', height: 'auto', margin: '0 20px' }} src={url} alt={`${index}`} />
                             <div>
                                 <label htmlFor={`label-${index}`}>Label:</label>
@@ -504,8 +511,8 @@ const SolveTasksPage = () => {
                         </div>
                     ))}
                     <div style={{ display: 'flex', flexDirection: 'column', marginTop: '20px' }}>
-                        <SolveButton type="submit">💾 Save</SolveButton>
-                        <SolveButton onClick={handleCloseModal}>Close</SolveButton>
+                        <SolveButton type="submit">💾 Complete</SolveButton>
+                        <SolveButton onClick={handleCloseModal}>Close the window</SolveButton>
                     </div>
                 </form>
                 <NextBtn onClick={handleNextImage}>→</NextBtn>
@@ -549,8 +556,8 @@ const SolveTasksPage = () => {
                                                         </div>
                                                         ))}
                                                         <div style={{ display: 'flex',   flexDirection: 'column', marginTop: '10px' }}>
-                                                        <SolveButton type="submit">💾 Save</SolveButton>
-                                                        <SolveButton onClick={handleCloseModal}>Close</SolveButton>
+                                                        <SolveButton type="submit">💾 Complete</SolveButton>
+                                                        <SolveButton onClick={handleCloseModal}>Close the window</SolveButton>
                                                         </div>
                                                         </form>
                                                         </>

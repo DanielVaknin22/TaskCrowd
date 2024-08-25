@@ -12,7 +12,7 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/user/${id}`);
+                const response = await fetch(`http://185.159.109.243:3001/user/${id}`);
                 const data = await response.json();
                 setAuth(data);
             } catch (error) {
@@ -22,7 +22,7 @@ const ProfilePage = () => {
 
         const fetchGivenTasks = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/task/get-tasks/${id}`);
+                const response = await fetch(`http://185.159.109.243:3001/task/get-tasks/${id}`);
                 if (response.ok) {
                     const tasks = await response.json();
                     setGivenTasks(tasks);
@@ -36,7 +36,7 @@ const ProfilePage = () => {
 
         const fetchSolvedTasks = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/task/get-solved-tasks/${id}`);
+                const response = await fetch(`http://185.159.109.243:3001/task/get-solved-tasks/${id}`);
                 if (response.ok) {
                     const data = await response.json();
                     setSolvedTasks(data);
@@ -69,7 +69,7 @@ const ProfilePage = () => {
 
     const handleDeleteTask = async (taskId) => {
         try {
-            const response = await fetch(`http://localhost:3000/task/delete-task/${taskId}`, {
+            const response = await fetch(`http://185.159.109.243:3001/task/delete-task/${taskId}`, {
                 method: 'DELETE',
             });
             if (response.ok) {

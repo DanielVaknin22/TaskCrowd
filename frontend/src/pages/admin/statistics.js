@@ -17,7 +17,7 @@ const StatisticsPage = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:3000/user');
+      const response = await fetch('http://185.159.109.243:3001/user');
       const data = await response.json();
       setUsers(data);
     } catch (error) {
@@ -27,7 +27,7 @@ const StatisticsPage = () => {
 
   const fetchGivenTasks = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:3000/task/get-tasks/${userId}`);
+      const response = await fetch(`http://185.159.109.243:3001/task/get-tasks/${userId}`);
       if (response.ok) {
         const tasks = await response.json();
         return tasks.length;
@@ -43,7 +43,7 @@ const StatisticsPage = () => {
 
   const fetchSolvedTasks = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:3000/task/get-solved-tasks/${userId}`);
+      const response = await fetch(`http://185.159.109.243:3001/task/get-solved-tasks/${userId}`);
       if (response.ok) {
         const tasks = await response.json();
         return tasks.length;
@@ -60,8 +60,8 @@ const StatisticsPage = () => {
   const fetchUserStatistics = async (userId) => {
     const givenTasksCount = await fetchGivenTasks(userId);
     const solvedTasksCount = await fetchSolvedTasks(userId);
-    setGivenTasks(new Array(givenTasksCount).fill({})); // Dummy data for length display
-    setSolvedTasks(new Array(solvedTasksCount).fill({})); // Dummy data for length display
+    setGivenTasks(new Array(givenTasksCount).fill({}));
+    setSolvedTasks(new Array(solvedTasksCount).fill({}));
   };
 
   const handleUserClick = (user) => {
@@ -89,6 +89,7 @@ const StatisticsPage = () => {
       const solvedTasksCount = await fetchSolvedTasks(user._id);
       return {
         name: user.name,
+        id: user.idNumber,
         email: user.email,
         tasksGiven: givenTasksCount,
         tasksSolved: solvedTasksCount
