@@ -105,6 +105,16 @@ const loginUser = async (req, res) => {
   }
 };
 
+const getUserNames = async (req, res) => {
+  try {
+      const { userIds } = req.body;
+      const users = await User.find({ _id: { $in: userIds } }, 'name _id idNumber');
+      res.json(users);
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
+};
+
 
 module.exports = { 
   getUsers, 
@@ -113,5 +123,6 @@ module.exports = {
   deleteUsers,
   getUserById, 
   registerUser, 
-  loginUser
+  loginUser,
+  getUserNames
 };

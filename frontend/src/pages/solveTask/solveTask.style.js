@@ -31,7 +31,7 @@ export const TaskContainer = styled.div`
     color: white;
 `;
 
-export const UserDetails = styled.div`
+export const Subject = styled.div`
     display: flex;
     align-items: center;
     font-weight: bold;

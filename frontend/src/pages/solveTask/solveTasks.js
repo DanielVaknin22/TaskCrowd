@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { HomeWrapper, TaskContainer, UserDetails, DateContainer, Task, Popup, PopupContant,
+import axios from 'axios';
+import { HomeWrapper, TaskContainer, Subject, DateContainer, Task, Popup, PopupContant,
     SolveButton, DeleteBtn, Btn, TextInput, NextBtn } from './solveTask.style';
 
 const SolveTasksPage = () => {
@@ -37,7 +38,7 @@ const SolveTasksPage = () => {
     const fetchTasksForSolving = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://185.159.109.243:3001/task/solve-tasks');
+            const response = await fetch('http://localhost:3001/task/solve-tasks');
             if (!response.ok) {
                 throw new Error('Failed to fetch tasks');
             }
@@ -67,23 +68,70 @@ const SolveTasksPage = () => {
         });
     };
 
+    const upload = async () => {
+        const formDataUpload = new FormData();
+        formData.images.forEach((image) => {
+            formDataUpload.append('images', image);
+        });
+    
+        try {
+            await axios.post('http://localhost:3001/upload-image', formDataUpload);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const convertToBase64 = async (file) => {
+        return new Promise((resolve, reject) => {
+          if (!(file instanceof File)) {
+            reject(new Error('Parameter is not of type File'));
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve(reader.result);
+          };
+          reader.onerror = (error) => {
+            reject(error);
+          };
+          reader.readAsDataURL(file);
+        });
+    };
+
     const handleSolveTask = async (taskId, solutions, labels) => {
         try {
             const userId = localStorage.getItem('userID'); 
             console.log('solutions:', solutions);
             console.log('labels:', labels);
-            const response = await fetch(`http://185.159.109.243:3001/task/${taskId}/${userId}/solve`, {
+            
+            const base64Images = await Promise.all(formData.images.map(file => convertToBase64(file)));
+            console.log('base64Images:', base64Images);
+
+            await upload();
+
+            // const formDataWithUserID = {
+            //     ...formData,
+            //     userID: userId,
+            //     images: base64Images,
+            //     labels: [...selectedTask.labels, ...formData.labels],
+            //     solution: solutions,            
+            // };
+            // console.log('formDataWithUserID:', formDataWithUserID);
+
+            const response = await fetch(`http://localhost:3001/task/${taskId}/${userId}/solve`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ solution: labels, labels: [...selectedTask.labels, ...formData.labels] })
+                body: JSON.stringify({ images: base64Images,
+                    labels: [...selectedTask.labels, ...formData.labels],
+                    solution: solutions, imageUrls: imageUrls })
             });
             if (response.ok) {
                 console.log('labels:', labels);
                 console.log('Task solved successfully');
                 alert('Task solved successfully');
-                setFormData({ labels: [] });
+                setFormData({ labels: [], });
                 setModalVisible(false);
                 fetchTasksForSolving();
             } else {
@@ -110,12 +158,12 @@ const SolveTasksPage = () => {
 
     const fetchTaskImages = async (taskId) => {
         try {
-            const response = await fetch(`http://185.159.109.243:3001/task/get-images/${taskId}`);
+            const response = await fetch(`http://localhost:3001/task/get-images/${taskId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch task images');
             }
             const data = await response.json();
-            const filepaths = data.filepaths.map(filepath => `http://185.159.109.243:3001/${filepath}`);
+            const filepaths = data.filepaths.map(filepath => `http://localhost:3001/${filepath}`);
             console.log(filepaths);
             return filepaths;
         } catch (error) {
@@ -131,17 +179,16 @@ const SolveTasksPage = () => {
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
-        const urls = files.map(file => URL.createObjectURL(file));
+        console.log('images:', files);
         setFormData({
-            ...formData,
-            images: files,
+          ...formData,
+          images: files,
         });
-        setImageUrls(urls);
-    };
+      };
 
     const handleDeleteTask = async (taskId) => {
         try {
-            const response = await fetch(`http://185.159.109.243:3001/task/delete-task/${taskId}`, {
+            const response = await fetch(`http://localhost:3001/task/delete-task/${taskId}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
@@ -168,7 +215,7 @@ const SolveTasksPage = () => {
             const normalizedImageUrl = imageUrl.replace(/\\/g, '/');
             console.log('Attempting to delete image with taskId:', taskId, 'and imageUrl:', normalizedImageUrl);
     
-            const response = await fetch('http://185.159.109.243:3001/task/delete-image', {
+            const response = await fetch('http://localhost:3001/task/delete-image', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -190,7 +237,7 @@ const SolveTasksPage = () => {
   
     const handleEditTask = async (taskId, updatedTaskData) => {
         try {
-            const response = await fetch(`http://185.159.109.243:3001/task/update-task/${taskId}`, {
+            const response = await fetch(`http://localhost:3001/task/update-task/${taskId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -257,7 +304,7 @@ const SolveTasksPage = () => {
                     {tasks.map(task => (
                         <TaskContainer key={task._id}>
                             <Task>
-                                <UserDetails><p>{task.userName}</p></UserDetails>
+                            <Subject><p>Subject: {task.subject}</p></Subject>
                                 <DateContainer><p>{formatDate(task.date)}</p></DateContainer>
                                 {task.userID === userID && rolee !== 'admin' && (
                                     <DeleteBtn onClick={() => handleDeleteTask(task._id)}>🗑️ Delete</DeleteBtn>
@@ -266,7 +313,7 @@ const SolveTasksPage = () => {
                                     <DeleteBtn onClick={() => handleDeleteTask(task._id)}>
                                         🗑️ Delete </DeleteBtn>
                                 )}
-                                <p style={{ marginTop: '40px' }}>Subject: {task.subject}</p>
+                                <p style={{ marginTop: '40px' }}>Given by: {task.userName}</p>
                                 <p>Type: {task.type}</p>
                                 <p>Number of solutions are required: {task.numsolution}</p>
                                 <SolveButton onClick={() => {
@@ -409,7 +456,7 @@ const SolveTasksPage = () => {
                         return { image_url: url, label: selectedLabel };
                     });
                     const solutions = imageUrls.map((url, index) => selectedTask.images[index]);
-                    handleSolveTask(selectedTask._id, solutions, selectedLabels);
+                    handleSolveTask(selectedTask._id, selectedLabels, solutions);
                     setModalVisible(false); 
                 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     {imageUrls.map((url, index) => (
@@ -426,6 +473,7 @@ const SolveTasksPage = () => {
                                             id={`label-${index}-${labelIndex}`}
                                             name={`selectedLabels-${index}`}
                                             value={label}
+                                            required
                                         />
                                         <label htmlFor={`label-${index}-${labelIndex}`}>{label}</label>
                                     </div>
@@ -449,7 +497,7 @@ const SolveTasksPage = () => {
                                                     <p>Text: {selectedTask.text}</p>
                                                 <form onSubmit={(e) => {
                                                     e.preventDefault();
-                                                    handleSolveTask(selectedTask._id, [], formData.labels);
+                                                    handleSolveTask(selectedTask._id, formData.labels, []);
                                                     setModalVisible(false);
                                                 }}>
 
@@ -488,7 +536,7 @@ const SolveTasksPage = () => {
                             return { image_url: url, label: selectedLabel };
                         });
                         const solutions = imageUrls.map((url, index) => selectedTask.images[index]);
-                        handleSolveTask(selectedTask._id, solutions, selectedLabels);
+                        handleSolveTask(selectedTask._id, selectedLabels, solutions);
                         setModalVisible(false);
                     }}
                     style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
@@ -531,7 +579,7 @@ const SolveTasksPage = () => {
                                                                     return { image_url: url, label: selectedLabel };
                                                                 });
                                                                 const solutions = imageUrls.map((url, index) => selectedTask.images[index]); 
-                                                                handleSolveTask(selectedTask._id, solutions, selectedLabels);
+                                                                handleSolveTask(selectedTask._id, selectedLabels, solutions);
                                                                 setModalVisible(false); 
                                                             }}>
                 <div>

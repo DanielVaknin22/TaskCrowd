@@ -48,7 +48,7 @@ const getTasksGiven = async (req, res) => {
     const tasksWithUserNames = tasks.map(task => {
       return {
         ...task.toObject(),
-        userName: user.name // Assuming the user object has a 'name' property
+        userName: user.name 
       };
     });
 
@@ -202,7 +202,7 @@ const createTask = async (req, res) => {
 
 const getTasksForLabeling = async (req, res) => {
   try {
-    const tasks = await Task.find({ type: 'Text cataloging' }); // Fetch text cataloging tasks
+    const tasks = await Task.find({ type: 'Text cataloging' });
     res.status(200).send(tasks);
   } catch (error) {
     console.error('Error fetching tasks for labeling:', error);
@@ -235,9 +235,12 @@ const uploadImages = async (req, res) => {
 
 const solveTask = async (req, res) => {
   try {
-    const { solution, labels } = req.body;
+    const { solution, labels, images: base64Images, imageUrls } = req.body;
     console.log('Received solution:', solution);
     console.log('Received labels:', labels);
+    console.log('Received base64 images:', base64Images);
+    console.log('image urls:', imageUrls)
+
     const taskId = req.params.taskId;
     const userId = req.params.userId;
 
@@ -247,6 +250,7 @@ const solveTask = async (req, res) => {
     }
 
     let images = [];
+
     if (task.type === 'Text cataloging') {
       const uniqueLabels = [...new Set([...task.labels, ...labels])];
       task.labels = uniqueLabels;
@@ -256,8 +260,7 @@ const solveTask = async (req, res) => {
         return res.status(404).json({ error: 'Images not found for the task' });
       }
 
-      console.log('Solutions:', solution);
-      console.log('Images:', images);
+      console.log('Existing Images:', images);
 
       for (let i = 0; i < solution.length && i < images.length; i++) {
         if (images[i]) {
@@ -277,31 +280,57 @@ const solveTask = async (req, res) => {
         }
       }
     } else if (task.type === 'Label classification') {
-      const savedImages = await Promise.all(images.map(async (base64ImageData) => {
-        const base64Image = base64ImageData.split(';base64,').pop();
-        const filename = `image_${Date.now()}.jpg`; 
-        const directoryPath = path.join(__dirname, '..', 'uploads');
-        const filePath = path.join('uploads', filename);
-        if (!fs.existsSync(directoryPath)) {
-          fs.mkdirSync(directoryPath, { recursive: true });
-        }
+      if (base64Images && base64Images.length > 0) {
+        images = await Promise.all(base64Images.map(async (base64ImageData) => {
+          try {
+            const base64Image = base64ImageData.split(';base64,').pop();
+            const filename = `image_${Date.now()}.jpg`; 
+            const directoryPath = path.join(__dirname, '..', 'uploads');
+            const filePath = path.join('uploads', filename);
 
-        await fs.promises.writeFile(filePath, base64Image, { encoding: 'base64' });
-        
-        const newImage = new Image({
-          taskID: task._id,
-          userID,
-          filename,
-          filePath,
-        });
-        return await newImage.save();
-      }));
-      const imageIDs = savedImages.map(image => image._id);
-        task.images = [...(task.images || []), ...imageIDs];
+            if (!fs.existsSync(directoryPath)) {
+              fs.mkdirSync(directoryPath, { recursive: true });
+            }
+
+            console.log('Saving image to:', filePath);
+
+            await fs.promises.writeFile(filePath, base64Image, { encoding: 'base64' });
+
+            const newImage = new Image({
+              taskID: task._id,
+              userID: userId,
+              filename,
+              filePath,
+            });
+
+            const savedImage = await newImage.save();
+            console.log('Saved Image:', savedImage);
+
+            return await newImage.save();
+          } catch (err) {
+            console.error('Error saving image:', err);
+            throw err;
+          }
+        }));
+
+        console.log('Saved Images:', images);
+
+        task.images = [...(task.images || []), ...images.map(image => image._id)];
+      }
     }
 
+    task.solutions.push({
+      userID: userId,
+      solution,
+      labels,
+      imageUrls,
+      images: images.map(image => image._id)
+    });
+
     task.status = 'Solved';
-    await task.save();
+    const updatedTask = await task.save();
+
+    console.log('Updated Task:', updatedTask);
 
     const user = await User.findById(userId);
     if (!user) {
@@ -325,6 +354,8 @@ const solveTask = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+
 
 
 const deleteTask = async (req, res) => {

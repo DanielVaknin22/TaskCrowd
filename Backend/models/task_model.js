@@ -38,7 +38,13 @@ const taskSchema = new mongoose.Schema({
         type: String,
         enum: ['Created', 'Solved', 'Reviewed'],
         default: 'Created'
-    }
+    },
+    solutions: [{
+        userID: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        solution: mongoose.Schema.Types.Mixed,
+        labels: [String],
+        images: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Image' }]
+      }],
 });
 
 module.exports = mongoose.model("Task", taskSchema);
