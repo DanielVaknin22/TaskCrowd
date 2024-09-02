@@ -38,7 +38,7 @@ const SolveTasksPage = () => {
     const fetchTasksForSolving = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://185.159.109.243:3001/task/solve-tasks');
+            const response = await fetch('http://localhost:3001/task/solve-tasks');
             if (!response.ok) {
                 throw new Error('Failed to fetch tasks');
             }
@@ -75,7 +75,7 @@ const SolveTasksPage = () => {
         });
     
         try {
-            await axios.post('http://185.159.109.243:3001/upload-image', formDataUpload);
+            await axios.post('http://localhost:3001/upload-image', formDataUpload);
         } catch (error) {
             console.log(error);
         }
@@ -109,7 +109,7 @@ const SolveTasksPage = () => {
 
             await upload();
 
-            const response = await fetch(`http://185.159.109.243:3001/task/${taskId}/${userId}/solve`, {
+            const response = await fetch(`http://localhost:3001/task/${taskId}/${userId}/solve`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -149,12 +149,12 @@ const SolveTasksPage = () => {
 
     const fetchTaskImages = async (taskId) => {
         try {
-            const response = await fetch(`http://185.159.109.243:3001/task/get-images/${taskId}`);
+            const response = await fetch(`http://localhost:3001/task/get-images/${taskId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch task images');
             }
             const data = await response.json();
-            const filepaths = data.filepaths.map(filepath => `http://185.159.109.243:3001/${filepath}`);
+            const filepaths = data.filepaths.map(filepath => `http://localhost:3001/${filepath}`);
             console.log(filepaths);
             return filepaths;
         } catch (error) {
@@ -179,7 +179,7 @@ const SolveTasksPage = () => {
 
     const handleDeleteTask = async (taskId) => {
         try {
-            const response = await fetch(`http://185.159.109.243:3001/task/delete-task/${taskId}`, {
+            const response = await fetch(`http://localhost:3001/task/delete-task/${taskId}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
@@ -206,7 +206,7 @@ const SolveTasksPage = () => {
             const normalizedImageUrl = imageUrl.replace(/\\/g, '/');
             console.log('Attempting to delete image with taskId:', taskId, 'and imageUrl:', normalizedImageUrl);
     
-            const response = await fetch('http://185.159.109.243:3001/task/delete-image', {
+            const response = await fetch('http://localhost:3001/task/delete-image', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -228,7 +228,7 @@ const SolveTasksPage = () => {
   
     const handleEditTask = async (taskId, updatedTaskData) => {
         try {
-            const response = await fetch(`http://185.159.109.243:3001/task/update-task/${taskId}`, {
+            const response = await fetch(`http://localhost:3001/task/update-task/${taskId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

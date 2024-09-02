@@ -17,7 +17,7 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await fetch(`http://185.159.109.243:3001/user/${id}`);
+                const response = await fetch(`http://localhost:3001/user/${id}`);
                 const data = await response.json();
                 setAuth(data);
             } catch (error) {
@@ -27,7 +27,7 @@ const ProfilePage = () => {
 
         const fetchGivenTasks = async () => {
             try {
-                const response = await fetch(`http://185.159.109.243:3001/task/get-tasks/${id}`);
+                const response = await fetch(`http://localhost:3001/task/get-tasks/${id}`);
                 if (response.ok) {
                     let tasks = await response.json();
                     tasks = await fetchTaskImages(tasks);
@@ -42,12 +42,12 @@ const ProfilePage = () => {
 
         const fetchSolvedTasks = async () => {
             try {
-                const response = await fetch(`http://185.159.109.243:3001/task/get-solved-tasks/${id}`);
+                const response = await fetch(`http://localhost:3001/task/get-solved-tasks/${id}`);
                 if (response.ok) {
                     let tasks = await response.json();
                     tasks = await Promise.all(tasks.map(async (task) => {
                         const solutionFetchPromises = task.solutions.map(async (solution) => {
-                            const imagesResponse = await fetch(`http://185.159.109.243:3001/task/get-images/${solution._id}`);
+                            const imagesResponse = await fetch(`http://localhost:3001/task/get-images/${solution._id}`);
                             if (imagesResponse.ok) {
                                 const images = await imagesResponse.json();
                                 return { ...solution, images };
@@ -95,7 +95,7 @@ const ProfilePage = () => {
 
     const handleDeleteTask = async (taskId) => {
         try {
-            const response = await fetch(`http://185.159.109.243:3001/task/delete-task/${taskId}`, {
+            const response = await fetch(`http://localhost:3001/task/delete-task/${taskId}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
@@ -113,7 +113,7 @@ const ProfilePage = () => {
     const fetchTaskImages = async (tasks) => {
         const imageFetchPromises = tasks.map(async (task) => {
             try {
-                const response = await fetch(`http://185.159.109.243:3001/task/get-images/${task._id}`);
+                const response = await fetch(`http://localhost:3001/task/get-images/${task._id}`);
                 if (response.ok) {
                     const data = await response.json();
                     if (Array.isArray(data.filepaths)) {
@@ -147,7 +147,7 @@ const ProfilePage = () => {
         
         const userIds = [...new Set(task.solutions.map(solution => solution.userID))];
         
-        const response = await fetch('http://185.159.109.243:3001/user/getUserNames', {
+        const response = await fetch('http://localhost:3001/user/getUserNames', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
