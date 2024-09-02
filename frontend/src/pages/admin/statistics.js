@@ -17,7 +17,7 @@ const StatisticsPage = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:3001/user');
+      const response = await fetch('http://185.159.109.243:3001/user');
       const data = await response.json();
       setUsers(data);
     } catch (error) {
@@ -27,7 +27,7 @@ const StatisticsPage = () => {
 
   const fetchGivenTasks = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:3001/task/get-tasks/${userId}`);
+      const response = await fetch(`http://185.159.109.243:3001/task/get-tasks/${userId}`);
       if (response.ok) {
         const tasks = await response.json();
         return tasks.length;
@@ -43,7 +43,7 @@ const StatisticsPage = () => {
 
   const fetchSolvedTasks = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:3001/task/get-solved-tasks/${userId}`);
+      const response = await fetch(`http://185.159.109.243:3001/task/get-solved-tasks/${userId}`);
       if (response.ok) {
         const tasks = await response.json();
         return tasks.length;
